@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, Alert, StyleSheet } from 'react-native';
+import { View, TextInput, Button, Alert, StyleSheet, Text } from 'react-native';
 import API from '../services/api';
 
 export default function RegisterScreen({ navigation }) {
@@ -24,16 +24,78 @@ export default function RegisterScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <TextInput placeholder="Nombre" value={name} onChangeText={setName} style={styles.input} />
-      <TextInput placeholder="Correo" value={email} onChangeText={setEmail} style={styles.input} />
-      <TextInput placeholder="Contraseña" value={password} secureTextEntry onChangeText={setPassword} style={styles.input} />
-      <Button title="Registrarse" onPress={handleRegister} />
-      <Button title="¿Ya tienes cuenta? Inicia sesión" onPress={() => navigation.navigate('Login')} />
+      <Text style={styles.title}>Registro</Text>
+      <TextInput 
+        placeholder="Nombre" 
+        value={name} 
+        onChangeText={setName} 
+        style={styles.input} 
+        placeholderTextColor="#888"
+      />
+      <TextInput 
+        placeholder="Correo" 
+        value={email} 
+        onChangeText={setEmail} 
+        style={styles.input} 
+        placeholderTextColor="#888"
+      />
+      <TextInput 
+        placeholder="Contraseña" 
+        value={password} 
+        secureTextEntry 
+        onChangeText={setPassword} 
+        style={styles.input} 
+        placeholderTextColor="#888"
+      />
+      <View style={styles.buttonContainer}>
+        <Button title="Registrarse" onPress={handleRegister} color="#4CAF50" />
+      </View>
+      <View style={styles.linkContainer}>
+        <Text style={styles.linkText}>¿Ya tienes cuenta?</Text>
+        <Button title="Inicia sesión" onPress={() => navigation.navigate('Login')} color="#2196F3" />
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 20 },
-  input: { borderWidth: 1, borderColor: '#ccc', marginBottom: 10, padding: 8, borderRadius: 5 },
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F4F6F9',
+    padding: 20,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: '600',
+    marginBottom: 30,
+    color: '#333',
+  },
+  input: {
+    width: '100%',
+    height: 50,
+    borderWidth: 1,
+    borderColor: '#DDD',
+    marginBottom: 15,
+    paddingHorizontal: 15,
+    borderRadius: 8,
+    fontSize: 16,
+    backgroundColor: '#FFF',
+  },
+  buttonContainer: {
+    width: '100%',
+    marginBottom: 15,
+  },
+  linkContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 15,
+  },
+  linkText: {
+    fontSize: 16,
+    color: '#555',
+    marginRight: 5,
+  },
 });

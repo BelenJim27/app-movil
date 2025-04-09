@@ -1,6 +1,7 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, Button, StyleSheet, FlatList, ActivityIndicator, Alert, RefreshControl, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, Alert, RefreshControl, TouchableOpacity, SafeAreaView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Ionicons } from '@expo/vector-icons';
 import API from '../services/api';
 
 export default function Dashboard({ navigation }) {
@@ -17,8 +18,7 @@ export default function Dashboard({ navigation }) {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log('Respuesta de usuarios:', response.data);
-      setUsers(response.data.data); // Ajusta si tu API responde diferente
+      setUsers(response.data.data);
     } catch (error) {
       console.error('Error al cargar usuarios:', error.response?.data || error.message);
       Alert.alert('Error', 'No se pudieron cargar los usuarios');
@@ -38,86 +38,220 @@ export default function Dashboard({ navigation }) {
   };
 
   const handleDeleteUser = async (userId) => {
-    try {
-      const token = await AsyncStorage.getItem('token');
-      await API.delete(`/users/${userId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
+    Alert.alert(
+      'Confirmar eliminación',
+      '¿Estás seguro de que deseas eliminar este usuario?',
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
         },
-      });
-      Alert.alert('Usuario eliminado');
-      fetchUsers(); // refresca la lista
-    } catch (error) {
-      console.error('Error al eliminar usuario:', error.response?.data || error.message);
-      Alert.alert('Error', 'No se pudo eliminar el usuario');
-    }
+        {
+          text: 'Eliminar',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              const token = await AsyncStorage.getItem('token');
+              await API.delete(`/users/${userId}`, {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              });
+              Alert.alert('Éxito', 'Usuario eliminado correctamente');
+              fetchUsers();
+            } catch (error) {
+              console.error('Error al eliminar usuario:', error.response?.data || error.message);
+              Alert.alert('Error', 'No se pudo eliminar el usuario');
+            }
+          },
+        },
+      ]
+    );
   };
 
   const handleEditUser = (user) => {
-    // Pasamos la función fetchUsers para refrescar la lista después de editar
     navigation.navigate('EditUser', { user, refreshUsers: fetchUsers });
+  };
+
+  const handleShowUser = (user) => {
+    navigation.navigate('UserDetails', { user });
   };
 
   const renderItem = ({ item }) => (
     <View style={styles.userCard}>
-      <Text style={styles.userText}>{item.email}</Text>
+      <TouchableOpacity 
+        style={styles.userInfo} 
+        onPress={() => handleShowUser(item)}
+        activeOpacity={0.7}
+      >
+        <Ionicons name="person-circle" size={24} color="#6c5ce7" />
+        <View style={styles.userDetails}>
+          <Text style={styles.userEmail}>{item.email}</Text>
+          <Text style={styles.userRole}>{item.role || 'Usuario'}</Text>
+        </View>
+      </TouchableOpacity>
       <View style={styles.buttonsContainer}>
-        <TouchableOpacity onPress={() => handleEditUser(item)} style={styles.editButton}>
-          <Text style={styles.buttonText}>Editar</Text>
+        <TouchableOpacity 
+          onPress={() => handleShowUser(item)} 
+          style={[styles.actionButton, styles.viewButton]}
+        >
+          <Ionicons name="eye-outline" size={18} color="#fff" />
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => handleDeleteUser(item._id)} style={styles.deleteButton}>
-          <Text style={styles.buttonText}>Eliminar</Text>
+        <TouchableOpacity 
+          onPress={() => handleEditUser(item)} 
+          style={[styles.actionButton, styles.editButton]}
+        >
+          <Ionicons name="create-outline" size={18} color="#fff" />
+        </TouchableOpacity>
+        <TouchableOpacity 
+          onPress={() => handleDeleteUser(item._id)} 
+          style={[styles.actionButton, styles.deleteButton]}
+        >
+          <Ionicons name="trash-outline" size={18} color="#fff" />
         </TouchableOpacity>
       </View>
     </View>
   );
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>🎉 Bienvenido al Dashboard</Text>
-      {loading ? (
-        <ActivityIndicator size="large" color="#0000ff" />
-      ) : (
-        <FlatList
-          data={users}
-          keyExtractor={(item) => item._id}
-          renderItem={renderItem}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={() => {
-              setRefreshing(true);
-              fetchUsers();
-            }} />
-          }
-          ListEmptyComponent={<Text style={styles.emptyText}>No hay usuarios registrados</Text>}
-        />
-      )}
-      <Button title="Cerrar sesión" onPress={handleLogout} color="#f4511e" />
-    </View>
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Lista Usuarios</Text>
+          <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+            <Ionicons name="log-out-outline" size={24} color="#6c5ce7" />
+          </TouchableOpacity>
+        </View>
+        
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#6c5ce7" />
+          </View>
+        ) : (
+          <FlatList
+            data={users}
+            keyExtractor={(item) => item._id}
+            renderItem={renderItem}
+            refreshControl={
+              <RefreshControl 
+                refreshing={refreshing} 
+                onRefresh={() => {
+                  setRefreshing(true);
+                  fetchUsers();
+                }}
+                colors={['#6c5ce7']}
+                tintColor="#6c5ce7"
+              />
+            }
+            ListEmptyComponent={
+              <View style={styles.emptyContainer}>
+                <Ionicons name="people-outline" size={48} color="#ddd" />
+                <Text style={styles.emptyText}>No hay usuarios registrados</Text>
+              </View>
+            }
+            contentContainerStyle={styles.listContent}
+          />
+        )}
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: '#fff' },
-  title: { fontSize: 22, marginBottom: 20, textAlign: 'center', fontWeight: 'bold' },
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#f8f9fa',
+  },
+  container: {
+    flex: 1,
+    paddingHorizontal: 16,
+    backgroundColor: '#f8f9fa',
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginVertical: 24,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: '600',
+    color: '#2d3436',
+  },
+  logoutButton: {
+    padding: 8,
+  },
   userCard: {
-    backgroundColor: '#f9f9f9',
-    padding: 15,
-    marginBottom: 10,
-    borderRadius: 8,
+    backgroundColor: '#fff',
+    padding: 16,
+    marginBottom: 12,
+    borderRadius: 12,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
     elevation: 2,
   },
-  userText: { fontSize: 16, marginBottom: 10 },
-  buttonsContainer: { flexDirection: 'row', justifyContent: 'space-between' },
+  userInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  userDetails: {
+    marginLeft: 12,
+  },
+  userEmail: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#2d3436',
+  },
+  userRole: {
+    fontSize: 14,
+    color: '#636e72',
+    marginTop: 2,
+  },
+  buttonsContainer: {
+    flexDirection: 'row',
+  },
+  actionButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 8,
+  },
+  viewButton: {
+    backgroundColor: '#0984e3',
+  },
   editButton: {
-    backgroundColor: '#4CAF50',
-    padding: 8,
-    borderRadius: 5,
+    backgroundColor: '#00b894',
   },
   deleteButton: {
-    backgroundColor: '#f44336',
-    padding: 8,
-    borderRadius: 5,
+    backgroundColor: '#d63031',
   },
-  buttonText: { color: '#fff' },
-  emptyText: { textAlign: 'center', color: '#888', marginTop: 20 },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 40,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: '#b2bec3',
+    marginTop: 16,
+    textAlign: 'center',
+  },
+  listContent: {
+    flexGrow: 1,
+    paddingBottom: 16,
+  },
 });
