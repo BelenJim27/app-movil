@@ -1,19 +1,19 @@
+// screens/LoginScreen.js
 import React, { useState } from 'react';
-import { 
-  View, 
-  Text, 
-  TextInput, 
-  StyleSheet, 
-  TouchableOpacity, 
-  KeyboardAvoidingView, 
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+  KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
   Alert,
   Image,
   Dimensions
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import API from '../services/api';
+import { useAuth } from '../../context/AuthContext';
 
 const { width } = Dimensions.get('window');
 
@@ -23,6 +23,8 @@ const LoginScreen = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
+  const { login } = useAuth();
+
   const handleLogin = async () => {
     if (!email || !password) {
       Alert.alert('Error', 'Por favor complete todos los campos');
@@ -31,14 +33,10 @@ const LoginScreen = ({ navigation }) => {
 
     setIsLoading(true);
     try {
-      const response = await API.post('/login', { email, password });
-      const data = response.data;
-
-      await AsyncStorage.setItem('token', data.data.token);
-      navigation.navigate('Dashboard');
+      await login(email, password);
+      console.log();
     } catch (error) {
-      console.error('Error al iniciar sesión:', error.response?.data?.message || error.message);
-      Alert.alert('Error', error.response?.data?.message || 'Credenciales incorrectas');
+      Alert.alert('Error', error.message);
     } finally {
       setIsLoading(false);
     }
@@ -47,12 +45,12 @@ const LoginScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'undefined'}
         style={styles.keyboardView}
       >
         <View style={styles.header}>
           <Image 
-            source={require('../assets/icon.png')} 
+            source={require('../../assets/icon.png')} 
             style={styles.logo} 
           />
           <Text style={styles.welcomeText}>Bienvenido de nuevo</Text>
@@ -115,7 +113,7 @@ const LoginScreen = ({ navigation }) => {
 
         <View style={styles.footer}>
           <Text style={styles.footerText}>¿No tienes una cuenta? </Text>
-          <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+          <TouchableOpacity onPress={() => navigation.navigate('Registro')}>
             <Text style={styles.footerLink}>Crear cuenta</Text>
           </TouchableOpacity>
         </View>
