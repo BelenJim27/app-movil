@@ -12,11 +12,11 @@ export default function DrawerNavigator() {
 
   return (
     <Drawer.Navigator initialRouteName="Inicio">
-      <Drawer.Screen name="Inicio" component={DashboardScreen} />
-      <Drawer.Screen name="Categorias" component={CategoriasStack} />
+      <Drawer.Screen name="Inicio" component={DashboardScreen}  options={{ title: 'Inicio' }}/>
+      <Drawer.Screen name="Categorias" component={CategoriasStack} options={{ title: 'Categorias' }} />
       {isAdmin && (
         <>
-          <Drawer.Screen name="Usuarios" component={UserStack}/>
+          <Drawer.Screen name="Usuarios" component={UserStack}  options={{ title: 'Usuarios' }}/>
         </>
       )}
     </Drawer.Navigator>

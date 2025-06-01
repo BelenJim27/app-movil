@@ -61,7 +61,7 @@ export default function ProductosScreen() {
       onPress={() => navigation.navigate('DetallesProducto', { producto: item })}>
         <View style={styles.card}>
           {item.imagenes ? (
-            <Image source={{ uri: `http://192.168.1.77:5000/${item.imagenes[0]}`  }} style={styles.image} />
+            <Image source={{ uri: `http://192.168.80.109:5000/${item.imagenes[0]}`  }} style={styles.image} />
           ) : (
             <View style={styles.placeholderImage}>
               <Text style={{ color: '#999' }}>Sin imagen</Text>

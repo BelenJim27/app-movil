@@ -71,12 +71,13 @@ export default function DetalleProducto() {
   return (
     <ScrollView style={styles.container}>
       <View style={styles.image}>
-        {producto.imagenes?.[0] && (
-          <Image
-            source={{ uri: `http://192.168.1.77:5000/${producto.imagenes[0]}` }}
-            style={styles.image}
-          />
-        )}
+      {producto.url?.[0] && (
+  <Image
+    source={{ uri: producto.url[0] }}
+    style={styles.image}
+    resizeMode="contain"
+  />
+)}
       </View>
 
       <View style={styles.detailsContainer}>
