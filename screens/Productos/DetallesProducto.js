@@ -70,11 +70,9 @@ export default function DetalleProducto() {
 
   return (
     <ScrollView style={styles.container}>
-      <View style={styles.image}>
+      <View style={styles.image}> //ESTA ES LA URL PARA LLAMAR IMAGENES DE LA CARPTETA UPDATES IMG PRODUCTOS :D
       {producto.url?.[0] && (
-  <Image
-    source={{ uri: producto.url[0] }}
-    style={styles.image}
+              <Image source={{ uri: `http://192.168.80.109:5000/${producto.imagenes[0]}`  }} style={styles.image} 
     resizeMode="contain"
   />
 )}
