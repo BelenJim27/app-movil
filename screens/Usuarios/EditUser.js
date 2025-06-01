@@ -54,7 +54,7 @@ export default function EditUser({ route, navigation }) {
         text2: 'Los datos se guardaron correctamente.',
       });
 
-      setTimeout(() => navigatio('DetallesUsuario'), 1500); // volver tras mostrar el toast
+      setTimeout(() => navigation('DetallesUsuario'), 1500); // volver tras mostrar el toast
       
     } catch (error) {
       Toast.show({

@@ -1,25 +1,41 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, Alert, ScrollView, StyleSheet } from 'react-native';
+import {
+  View,
+  Text,
+  Image,
+  Alert,
+  ScrollView,
+  StyleSheet,
+  FlatList,
+  Dimensions,
+  ActivityIndicator
+} from 'react-native';
 import { useRoute, useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import API from '../../services/api';
 import Button from '../../components/Button';
-import { useAuth } from '../../context/AuthContext'; // ajusta el path según corresponda
+import { useAuth } from '../../context/AuthContext';
+
+const { width } = Dimensions.get('window');
 
 export default function DetalleProducto() {
-  const { user } = useAuth(); // Y `user.token` es el JWT
-
+  const { user } = useAuth();
   const route = useRoute();
   const navigation = useNavigation();
   const productos = route.params?.producto;
   const [producto, setProducto] = useState(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   const fetchProducto = async () => {
     try {
+      setLoading(true);
       const res = await API.get(`/productos/${productos._id}`);
       setProducto(res.data.producto);
     } catch (error) {
       Alert.alert('Error', 'No se pudo cargar el producto');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -30,57 +46,104 @@ export default function DetalleProducto() {
   );
 
   const eliminarProducto = async () => {
-  Alert.alert(
-    'Eliminar Producto',
-    '¿Estás seguro de que quieres eliminar este producto?',
-    [
-      { text: 'Cancelar', style: 'cancel' },
-      {
-        text: 'Eliminar',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            await API.delete(`/productos/${productos._id}`, {
-              headers: {
-                Authorization: `Bearer ${user.token}`,
-              },
-            });
-            setProducto(null);
-            Alert.alert('Éxito', 'Producto eliminado.');
-            navigation.goBack();
-            console.log('Producto eliminado:', productos._id); 
-          } catch (error) {
-            console.error('Error al eliminar:', error.response?.data || error.message);
-            Alert.alert('Error', 'No se pudo eliminar el producto.');
-          }
+    Alert.alert(
+      'Eliminar Producto',
+      '¿Estás seguro de que quieres eliminar este producto?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Eliminar',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await API.delete(`/productos/${productos._id}`, {
+                headers: {
+                  Authorization: `Bearer ${user.token}`,
+                },
+              });
+              setProducto(null);
+              Alert.alert('Éxito', 'Producto eliminado.');
+              navigation.goBack();
+            } catch (error) {
+              console.error('Error al eliminar:', error.response?.data || error.message);
+              Alert.alert('Error', 'No se pudo eliminar el producto.');
+            }
+          },
         },
-      },
-    ]
-  );
-};
+      ]
+    );
+  };
 
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#2e86de" />
+      </View>
+    );
+  }
 
   if (!producto) {
     return (
       <View style={styles.container}>
-        <Text>Cargando producto...</Text>
+        <Text>No se pudo cargar el producto</Text>
       </View>
     );
   }
 
   return (
     <ScrollView style={styles.container}>
-      <View style={styles.image}> //ESTA ES LA URL PARA LLAMAR IMAGENES DE LA CARPTETA UPDATES IMG PRODUCTOS :D
-      {producto.url?.[0] && (
-              <Image source={{ uri: `http://192.168.80.109:5000/${producto.imagenes[0]}`  }} style={styles.image} 
-    resizeMode="contain"
-  />
-)}
+      {/* Carrusel de imágenes */}
+      <View style={styles.carouselContainer}>
+      <FlatList
+  data={producto.imagenes || []}
+  horizontal
+  pagingEnabled
+  showsHorizontalScrollIndicator={false}
+  keyExtractor={(item, index) => index.toString()}
+  renderItem={({ item }) => (
+    <View style={styles.imageContainer}>
+      <Image
+        source={{ uri: `http://192.168.80.109:5000/${item}` }}
+        style={styles.carouselImage}
+        resizeMode="cover"
+      />
+    </View>
+  )}
+  ListEmptyComponent={
+    <View style={styles.imageContainer}>
+      <Image
+        source={{ uri: 'https://via.placeholder.com/300' }}
+        style={styles.carouselImage}
+        resizeMode="cover"
+      />
+    </View>
+  }
+  onScroll={(e) => {
+    const contentOffset = e.nativeEvent.contentOffset.x;
+    const index = Math.round(contentOffset / (width - 40));
+    setCurrentIndex(index);
+  }}
+/>
+        {/* Indicadores de página */}
+        {producto.imagenes?.length > 1 && (
+          <View style={styles.indicatorContainer}>
+            {producto.imagenes.map((_, index) => (
+              <View
+                key={index}
+                style={[
+                  styles.indicator,
+                  index === currentIndex && styles.activeIndicator
+                ]}
+              />
+            ))}
+          </View>
+        )}
       </View>
 
+      {/* Detalles del producto */}
       <View style={styles.detailsContainer}>
         <Text style={styles.productName}>{producto.nombre}</Text>
-        <Text style={styles.productPrice}>{producto.precio} NMX</Text>
+        <Text style={styles.productPrice}>${producto.precio} NMX</Text>
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Descripción</Text>
@@ -116,36 +179,73 @@ export default function DetalleProducto() {
   );
 }
 
-// styles iguales que antes
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
   },
-  image: {
-    width: '100%',
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  carouselContainer: {
     height: 300,
-    padding: 20,
-    paddingBottom: 10,
-    paddingTop: 10,
+    width: '100%',
+    marginBottom: 10,
+    position: 'relative',
+  },
+  imageContainer: {
+    width: width,
+    height: 300,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  carouselImage: {
+    width: '90%',
+    height: '90%',
+  },
+  indicatorContainer: {
+    position: 'absolute',
+    bottom: -10,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  indicator: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#ccc',
+    marginHorizontal: 4,
+  },
+  activeIndicator: {
+    backgroundColor: '#2e86de',
+    width: 12,
   },
   detailsContainer: {
     padding: 20,
   },
   productName: {
-    fontSize: 24,
+    fontSize: 27,
     fontWeight: 'bold',
     marginBottom: 8,
-    color: '#333',
+    color: '#af20db',
+    
   },
   productPrice: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#2e86de',
+    color: '#0b76ef',
     marginBottom: 20,
   },
   section: {
-    marginBottom: 20,
+    marginBottom: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#f7f7f7',
+    paddingTop: 12,
   },
   sectionTitle: {
     fontSize: 18,

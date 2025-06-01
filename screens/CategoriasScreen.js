@@ -1,113 +1,135 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, FlatList, ActivityIndicator, StyleSheet } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { Ionicons } from '@expo/vector-icons';
-import API from '../services/api';
+import {
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  Image,
+  StyleSheet,
+  ActivityIndicator,
+} from 'react-native';
+import axios from 'axios';
 
-export default function CategoriasScreen() {
+const CategoriasScreen = ({ navigation }) => {
   const [categorias, setCategorias] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const navigation = useNavigation();
+
+  const obtenerCategorias = async () => {
+    try {
+      const res = await axios.get('http://192.168.80.109:5000/api/categorias');
+      
+      // Mapeamos las categorías con imágenes por defecto si no existen
+      const categoriasFormateadas = res.data.data.map(categoria => ({
+        nombre: categoria,
+        // Usamos una imagen por defecto si no existe la específica
+        imagenUrl: `http://192.168.80.109:5000/uploads/${categoria.toLowerCase()}.jpg`
+      }));
+      
+      setCategorias(categoriasFormateadas);
+    } catch (error) {
+      console.error('Error al obtener categorías:', error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchCategorias = async () => {
-      try {
-        const res = await API.get('/categorias');
-        if (res.data.success && res.data.data) {
-          setCategorias(res.data.data);
-        } else {
-          setError(res.data.message || 'No se pudieron obtener las categorías');
-        }
-      } catch (err) {
-        setError(err.message || 'Error de red');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCategorias();
+    obtenerCategorias();
   }, []);
+
+  const renderItem = ({ item }) => (
+    <View style={styles.cardContainer}>
+      <TouchableOpacity
+        style={styles.card}
+        onPress={() => navigation.navigate('ProductosPorCategoria', { categoria: item.nombre })}
+      >
+        <Image 
+          source={{ uri: item.imagenUrl }} 
+          style={styles.image}
+          onError={(e) => {
+          }}
+        />
+      </TouchableOpacity>
+      <Text style={styles.title} numberOfLines={1} ellipsizeMode="tail">{item.nombre}</Text>
+    </View>
+  );
 
   if (loading) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color="#007AFF" />
-      </View>
-    );
-  }
-
-  if (error) {
-    return (
-      <View style={styles.center}>
-        <Text style={styles.errorText}>Error al cargar categorías: {error}</Text>
+      <View style={[styles.container, styles.center]}>
+        <ActivityIndicator size="large" color="#888" />
       </View>
     );
   }
 
   return (
-    <FlatList
-      contentContainerStyle={styles.container}
-      data={categorias}
-      keyExtractor={(item, index) => index.toString()}
-      renderItem={({ item }) => (
-        <TouchableOpacity 
-          style={styles.card}
-          onPress={() => navigation.navigate('ProductosPorCategoria', { categoria: item })}
-        >
-          <Ionicons name="pricetags" size={24} color="#007AFF" style={styles.icon} />
-          <Text style={styles.text}>{item}</Text>
-          <Ionicons name="chevron-forward" size={20} color="#ccc" style={{ marginLeft: 'auto' }} />
-        </TouchableOpacity>
-      )}
-      ListEmptyComponent={
-        <View style={styles.center}>
-          <Text style={styles.emptyText}>No hay categorías disponibles</Text>
-        </View>
-      }
-    />
+    <View style={styles.container}>
+      <Text style={styles.header}>Categorías</Text>
+      <FlatList
+        data={categorias}
+        keyExtractor={(item) => item.nombre}
+        renderItem={renderItem}
+        numColumns={2}
+        columnWrapperStyle={styles.row}
+        contentContainerStyle={styles.listContent}
+      />
+    </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
-  },
-  card: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F8F9FA',
-    borderRadius: 10,
-    padding: 15,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 5,
-    elevation: 3,
-  },
-  icon: {
-    marginRight: 10,
-  },
-  text: {
-    fontSize: 18,
-    color: '#333',
-    fontWeight: '500',
+    padding: 16,
+    backgroundColor: '#fff',
+    flex: 1,
   },
   center: {
-    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
   },
-  errorText: {
-    color: 'red',
-    textAlign: 'center',
-    fontSize: 16,
+  row: {
+    justifyContent: 'space-between',
+    marginBottom: 16,
   },
-  emptyText: {
+  listContent: {
+    paddingBottom: 30,
+  },
+  cardContainer: {
+    width: '48%',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  card: {
+    width: '100%',
+    aspectRatio: 1, // Mantiene relación cuadrada
+    backgroundColor: '#f9f9f9',
+    borderRadius: 14,
+    overflow: 'hidden',
+    elevation: 2,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  image: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  title: {
+    width: '100%',
     fontSize: 16,
-    color: '#999',
+    fontWeight: '600',
+    color: '#444',
     textAlign: 'center',
+    marginTop: 8,
+    paddingHorizontal: 4,
+  },
+  header: {
+    fontSize: 22,
+    fontWeight: '700',
+    marginBottom: 20,
+    textAlign: 'center',
+    color: '#333',
   },
 });
+
+export default CategoriasScreen;
