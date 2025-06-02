@@ -16,13 +16,13 @@ const CategoriasScreen = ({ navigation }) => {
 
   const obtenerCategorias = async () => {
     try {
-      const res = await axios.get('http://192.168.80.109:5000/api/categorias');
+      const res = await axios.get('http://192.168.1.65:5000/api/categorias');
       
       // Mapeamos las categorías con imágenes por defecto si no existen
       const categoriasFormateadas = res.data.data.map(categoria => ({
         nombre: categoria,
         // Usamos una imagen por defecto si no existe la específica
-        imagenUrl: `http://192.168.80.109:5000/uploads/${categoria.toLowerCase()}.jpg`
+        imagenUrl: `http://192.168.1.65:5000/uploads/${categoria.toLowerCase()}.jpg`
       }));
       
       setCategorias(categoriasFormateadas);

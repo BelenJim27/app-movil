@@ -1,7 +1,19 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, ActivityIndicator, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState , useCallback} from 'react';
+import { 
+  View, 
+  Text, 
+  FlatList, 
+  ActivityIndicator, 
+  StyleSheet, 
+  Image, 
+  TouchableOpacity, 
+  Dimensions 
+} from 'react-native';
 import API from '../../services/api';
-import { useRoute, useNavigation} from '@react-navigation/native';
+import { useRoute, useNavigation,useFocusEffect } from '@react-navigation/native';
+
+const { width } = Dimensions.get('window');
+const CARD_WIDTH = (width - 36) / 2; // Para 2 columnas con márgenes
 
 export default function ProductosScreen() {
   const route = useRoute();
@@ -12,28 +24,33 @@ export default function ProductosScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchProductos = async () => {
-      try {
-        const res = categoriaSeleccionada
-          ? await API.get(`/productos/categoria/${categoriaSeleccionada}`)
-          : await API.get('/productos');
 
-        if (res.data.success && res.data.data) {
-          setProductos(res.data.data);
-        } else {
-          setError('No se pudieron cargar los productos.');
-        }
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
+  const fetchProductos = async () => {
+    try {
+      setLoading(true);
+      const res = categoriaSeleccionada
+        ? await API.get(`/productos/categoria/${categoriaSeleccionada}`)
+        : await API.get('/productos');
+
+      if (res.data.success && res.data.data) {
+        setProductos(res.data.data);
+        setError(null);
+      } else {
+        setError('No se pudieron cargar los productos.');
       }
-    };
+    } catch (err) {
+      setError(err.message || 'Error al cargar productos.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchProductos();
-  }, [categoriaSeleccionada]);
-
+  // 🔁 Recarga productos al volver a la pantalla
+  useFocusEffect(
+    useCallback(() => {
+      fetchProductos();
+    }, [categoriaSeleccionada])
+  );
   if (loading) {
     return (
       <View style={styles.center}>
@@ -50,85 +67,117 @@ export default function ProductosScreen() {
     );
   }
 
-  return (
-    <FlatList
-      data={productos}
-      
-      keyExtractor={(item) => item._id}
-      contentContainerStyle={styles.container}
-      renderItem={({ item }) => (
-        <TouchableOpacity 
-      onPress={() => navigation.navigate('DetallesProducto', { producto: item })}>
-        <View style={styles.card}>
-          {item.imagenes ? (
-            <Image source={{ uri: `http://192.168.80.109:5000/${item.imagenes[0]}`  }} style={styles.image} />
-          ) : (
-            <View style={styles.placeholderImage}>
-              <Text style={{ color: '#999' }}>Sin imagen</Text>
-            </View>
-          )}
-          <View style={styles.info}>
-            <Text style={styles.name}>{item.nombre}</Text>
-            <Text style={styles.price}>{item.precio} NMX</Text>
+  const renderProductItem = ({ item }) => (
+    <TouchableOpacity
+      style={styles.cardContainer}
+      onPress={() => navigation.navigate('DetallesProducto', { producto: item })}
+    >
+      <View style={styles.card}>
+        {item.imagenes ? (
+          <Image
+            source={{ uri: `http://192.168.1.65:5000/${item.imagenes[0]}` }}
+            style={styles.productImage}
+            resizeMode="cover"
+          />
+        ) : (
+          <View style={styles.placeholderImage}>
+            <Text style={styles.placeholderText}>Sin imagen</Text>
           </View>
+        )}
+        <View style={styles.productInfo}>
+          <Text style={styles.productName} numberOfLines={2}>{item.nombre}</Text>
+          <Text style={styles.productPrice}>${item.precio} MXN</Text>
         </View>
-        </TouchableOpacity>
-        
+      </View>
+    </TouchableOpacity>
+  );
+
+  return (
+    <View style={styles.container}>
+      {categoriaSeleccionada && (
+        <Text style={styles.categoryTitle}>{categoriaSeleccionada}</Text>
       )}
-      ListEmptyComponent={
-        <View style={styles.center}>
-          <Text style={styles.emptyText}>No hay productos en esta categoría</Text>
-        </View>
-      }
-    />
+      <FlatList
+        data={productos}
+        keyExtractor={(item) => item._id}
+        renderItem={renderProductItem}
+        numColumns={2}
+        columnWrapperStyle={styles.row}
+        contentContainerStyle={styles.listContent}
+        ListEmptyComponent={
+          <View style={styles.center}>
+            <Text style={styles.emptyText}>No hay productos en esta categoría</Text>
+          </View>
+        }
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
+    flex: 1,
+    backgroundColor: '#fff',
+    paddingHorizontal: 12,
+  },
+  listContent: {
+    paddingBottom: 20,
+  },
+  row: {
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  cardContainer: {
+    width: CARD_WIDTH,
+    marginBottom: 12,
   },
   card: {
-    flexDirection: 'row',
-    backgroundColor: '#F8F9FA',
-    padding: 12,
-    borderRadius: 10,
-    marginBottom: 15,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    overflow: 'hidden',
     shadowColor: '#000',
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 5,
+    shadowRadius: 4,
     elevation: 3,
   },
-  image: {
-    width: 80,
-    height: 80,
-    borderRadius: 8,
-    marginRight: 12,
-    
+  productImage: {
+    width: '100%',
+    height: CARD_WIDTH,
+    backgroundColor: '#f5f5f5',
   },
   placeholderImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 8,
+    width: '100%',
+    height: CARD_WIDTH,
     backgroundColor: '#eaeaea',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
   },
-  info: {
-    flex: 1,
-    justifyContent: 'center',
+  placeholderText: {
+    color: '#999',
+    fontSize: 12,
   },
-  name: {
-    fontSize: 17,
-    fontWeight: '600',
+  productInfo: {
+    padding: 10,
+  },
+  productName: {
+    fontSize: 14,
     color: '#333',
+    fontWeight: '600',
+    height: 36,
+    marginBottom: 4,
   },
-  price: {
+  productPrice: {
     fontSize: 15,
+    fontWeight: 'bold',
     color: '#007AFF',
-    marginTop: 4,
+  },
+  categoryTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginVertical: 16,
+    marginHorizontal: 8,
+    color: '#333',
   },
   center: {
     flex: 1,

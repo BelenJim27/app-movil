@@ -103,7 +103,7 @@ export default function DetalleProducto() {
   renderItem={({ item }) => (
     <View style={styles.imageContainer}>
       <Image
-        source={{ uri: `http://192.168.80.109:5000/${item}` }}
+        source={{ uri: `http://192.168.1.65:5000/${item}` }}
         style={styles.carouselImage}
         resizeMode="cover"
       />

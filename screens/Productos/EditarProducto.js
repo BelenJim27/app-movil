@@ -125,7 +125,7 @@ export default function EditarProducto() {
       <View style={styles.galeriaContainer}>
         {imagenes.map((img, index) => (
           <View key={index} style={styles.imagenContainer}>
-<Image source={{ uri: `http://192.168.80.109:5000/${img}` }} style={styles.imagen} />
+<Image source={{ uri: `http://192.168.1.65:5000/${img}` }} style={styles.imagen} />
 <TouchableOpacity 
               style={styles.botonEliminar}
               onPress={() => eliminarImagen(img)}
