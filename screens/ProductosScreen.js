@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, Image, StyleSheet } from 'react-native';
 import API from '../api'; 
-
+import FloatingCartButton from '../components/FloatingCartButton';
 export default function ProductosScreen() {
   const [productos, setProductos] = useState([]);
 
@@ -30,12 +30,15 @@ export default function ProductosScreen() {
   );
 
   return (
-    <FlatList
-      data={productos}
-      keyExtractor={(item) => item._id}
-      renderItem={renderItem}
-      contentContainerStyle={styles.container}
-    />
+    <View style={{ flex: 1 }}>
+      <FlatList
+        data={productos}
+        keyExtractor={(item) => item._id}
+        renderItem={renderItem}
+        contentContainerStyle={styles.container}
+      />
+      <FloatingCartButton />
+    </View>
   );
 }
 

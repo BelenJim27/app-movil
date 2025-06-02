@@ -10,7 +10,7 @@ import ProductosScreen from './screens/Productos/ProductosScreen';
 import CreateUserScreen from './screens/Auth/CreateUserScreen';
 import DetallesProducto from './screens/Productos/ProductosScreen';
 import EditarProducto from './screens/Productos/EditarProducto';
-
+import { CartProvider } from './context/CartContext';
 const Stack = createNativeStackNavigator();
 
 function AuthStack() {
@@ -81,7 +81,10 @@ function AppContent() {
 export default function App() {
   return (
     <AuthProvider>
-      <AppContent />
+      <CartProvider>
+        <AppContent />
+      </CartProvider>
     </AuthProvider>
   );
 }
+

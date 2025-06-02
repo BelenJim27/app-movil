@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import axios from 'axios';
-
+import FloatingCartButton from '../components/FloatingCartButton';
 const CategoriasScreen = ({ navigation }) => {
   const [categorias, setCategorias] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -73,6 +73,7 @@ const CategoriasScreen = ({ navigation }) => {
         columnWrapperStyle={styles.row}
         contentContainerStyle={styles.listContent}
       />
+      <FloatingCartButton></FloatingCartButton>
     </View>
   );
 };

@@ -10,6 +10,7 @@ import {
   Dimensions 
 } from 'react-native';
 import API from '../../services/api';
+import FloatingCartButton from '../../components/FloatingCartButton';
 import { useRoute, useNavigation,useFocusEffect } from '@react-navigation/native';
 
 const { width } = Dimensions.get('window');
@@ -108,9 +109,13 @@ export default function ProductosScreen() {
           <View style={styles.center}>
             <Text style={styles.emptyText}>No hay productos en esta categoría</Text>
           </View>
+          
         }
       />
+          <FloatingCartButton />
+
     </View>
+    
   );
 }
 
