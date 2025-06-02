@@ -1,4 +1,6 @@
 import React, { useEffect, useState , useCallback} from 'react';
+import { useCart } from '../../context/CartContext';
+
 import { 
   View, 
   Text, 
@@ -13,6 +15,8 @@ import API from '../../services/api';
 import FloatingCartButton from '../../components/FloatingCartButton';
 import { useRoute, useNavigation,useFocusEffect } from '@react-navigation/native';
 
+import Ionicons from 'react-native-vector-icons/Ionicons';
+
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = (width - 36) / 2; // Para 2 columnas con márgenes
 
@@ -20,7 +24,12 @@ export default function ProductosScreen() {
   const route = useRoute();
   const navigation = useNavigation();
   const categoriaSeleccionada = route.params?.categoria || null;
+  const { addToCart } = useCart();
 
+  const agregarAlCarrito = (producto) => {
+    addToCart(producto);
+  };
+  
   const [productos, setProductos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -69,11 +78,11 @@ export default function ProductosScreen() {
   }
 
   const renderProductItem = ({ item }) => (
-    <TouchableOpacity
-      style={styles.cardContainer}
-      onPress={() => navigation.navigate('DetallesProducto', { producto: item })}
-    >
-      <View style={styles.card}>
+    <View style={styles.cardContainer}>
+      <TouchableOpacity
+        style={styles.card}
+        onPress={() => navigation.navigate('DetallesProducto', { producto: item })}
+      >
         {item.imagenes ? (
           <Image
             source={{ uri: `http://192.168.1.65:5000/${item.imagenes[0]}` }}
@@ -89,10 +98,18 @@ export default function ProductosScreen() {
           <Text style={styles.productName} numberOfLines={2}>{item.nombre}</Text>
           <Text style={styles.productPrice}>${item.precio} MXN</Text>
         </View>
-      </View>
-    </TouchableOpacity>
+      </TouchableOpacity>
+  
+      {/* Botón de añadir al carrito */}
+      <TouchableOpacity 
+        style={styles.addToCartButton}
+        onPress={() => agregarAlCarrito(item)} // función que usarás
+      >
+        <Ionicons name="cart-outline" size={24} color="#fff" />
+      </TouchableOpacity>
+    </View>
   );
-
+  
   return (
     <View style={styles.container}>
       {categoriaSeleccionada && (
@@ -199,5 +216,25 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#999',
     textAlign: 'center',
+  },addToCartButton: {
+    position: 'absolute',
+    right: 8,
+    bottom: 8,
+    backgroundColor: '#007AFF',
+    padding: 8,
+    borderRadius: 20,
+    zIndex: 10,
+    elevation: 6,
   },
+  addToCartButton: {
+    position: 'absolute',
+    right: 8,
+    bottom: 8,
+    backgroundColor: '#007AFF',
+    padding: 8,
+    borderRadius: 20,
+    zIndex: 10,
+    elevation: 6,
+  },
+    
 });

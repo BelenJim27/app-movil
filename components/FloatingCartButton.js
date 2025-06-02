@@ -10,7 +10,7 @@ export default function FloatingCartButton() {
 
   return (
     <TouchableOpacity
-      onPress={() => navigation.navigate('Cart')}
+      onPress={() => navigation.navigate('CartScreen')}
       style={styles.floatingButton}
     >
       <Ionicons name="cart" size={30} color="white" />

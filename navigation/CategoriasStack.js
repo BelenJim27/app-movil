@@ -4,7 +4,7 @@ import CategoriasScreen from '../screens/CategoriasScreen';
 import ProductosScreen from '../screens/Productos/ProductosScreen';
 import DetallesProducto from '../screens/Productos/DetallesProducto';
 import EditarProducto from '../screens/Productos/EditarProducto';
-
+import CartScreen from '../screens/Carrito/CarritoScreen';
 const Stack = createNativeStackNavigator();
 
 export default function CategoriasStack() {
@@ -31,7 +31,8 @@ export default function CategoriasStack() {
             })}
         />  
         <Stack.Screen name="EditarProducto" component={EditarProducto} />
-        
+        <Stack.Screen name="CartScreen" component={CartScreen} options={{ title: 'Mi Carrito' }} />
+
       
     </Stack.Navigator>
   );
