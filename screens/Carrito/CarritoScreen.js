@@ -1,10 +1,13 @@
 import React from 'react';
 import { View, Text, FlatList, TouchableOpacity, Image, StyleSheet, ScrollView, Alert } from 'react-native';
 import { useCart } from '../../context/CartContext';
+import { useAuth } from '../../context/AuthContext'; // Importa useAuth
 import Icon from 'react-native-vector-icons/FontAwesome';
+import API from '../../services/api';
 
 export default function CartScreen({ navigation }) {
   const { cartItems, removeFromCart, clearCart, updateQuantity, addToCart } = useCart();
+  const { user } = useAuth(); // Obtén el usuario del contexto de autenticación
   
   const total = cartItems.reduce((sum, item) => {
     const price = parseFloat(item.precio) || 0;
@@ -12,12 +15,59 @@ export default function CartScreen({ navigation }) {
     return sum + (price * quantity);
   }, 0);
 
+  // Función para manejar el checkout
   const handleCheckout = async () => {
     try {
-      Alert.alert('Éxito', 'Compra realizada con éxito');
+      // Verificar autenticación
+      if (!user || !user.token) {
+        Alert.alert('Error', 'Debes iniciar sesión para finalizar la compra');
+        navigation.navigate('Login');
+        return;
+      }
+
+      // Verificar que hay productos en el carrito
+      if (cartItems.length === 0) {
+        Alert.alert('Error', 'No hay productos en el carrito');
+        return;
+      }
+
+      // Decrementar existencias para cada producto
+      const updatePromises = cartItems.map(async (item) => {
+        try {
+          const response = await API.put(
+            `/productos/${item._id}/decrement`, 
+            { quantity: item.quantity },
+            {
+              headers: {
+                Authorization: `Bearer ${user.token}`
+              }
+            }
+          );
+          
+          if (!response.data.success) {
+            throw new Error(response.data.message || 'Error al actualizar existencias');
+          }
+        } catch (error) {
+          console.error(`Error al actualizar producto ${item._id}:`, error);
+          throw error;
+        }
+      });
+
+      // Ejecutar todas las actualizaciones
+      await Promise.all(updatePromises);
+
+      // Limpiar carrito y mostrar éxito
       clearCart();
+      Alert.alert('Éxito', 'Compra realizada con éxito');
+      
     } catch (error) {
-      Alert.alert('Error', 'No se pudo completar la compra');
+      console.error('Error en checkout:', error);
+      Alert.alert(
+        'Error', 
+        error.response?.data?.message || 
+        error.message || 
+        'No se pudo completar la compra'
+      );
     }
   };
 
@@ -30,7 +80,7 @@ export default function CartScreen({ navigation }) {
   };
 
   const handleIncrease = (item) => {
-    addToCart(item); // Esto incrementará la cantidad en 1
+    addToCart(item);
   };
 
   const renderItem = ({ item }) => (
@@ -114,7 +164,7 @@ export default function CartScreen({ navigation }) {
       {cartItems.length > 0 && (
         <TouchableOpacity 
           style={styles.checkoutButton}
-          onPress={handleCheckout}
+          onPress={handleCheckout} // Usamos la función definida
         >
           <Text style={styles.checkoutText}>Finalizar Compra</Text>
         </TouchableOpacity>
@@ -123,8 +173,7 @@ export default function CartScreen({ navigation }) {
   );
 }
 
-// Los estilos permanecen igual
-
+// Estilos permanecen igual
 const styles = StyleSheet.create({
   container: {
     flex: 1,
