@@ -11,6 +11,8 @@ import CreateUserScreen from './screens/Auth/CreateUserScreen';
 import DetallesProducto from './screens/Productos/ProductosScreen';
 import EditarProducto from './screens/Productos/EditarProducto';
 import CartScreen from './screens/CartScreen';
+import { StripeProvider } from '@stripe/stripe-react-native';
+
 const Stack = createNativeStackNavigator();
 
 function AuthStack() {
@@ -85,8 +87,13 @@ function AppContent() {
 
 export default function App() {
   return (
+    <StripeProvider
+    publishableKey="pk_test_51RVT7WPt8YfLrb17pAT5PbSGpVzy0wQz8BdCWO5CUE1BAFNvB92uBlmTjxZTWsn9MnxRbiIkVzRefyyso0BdiqSO00qfabh95N"
+  >
     <AuthProvider>
       <AppContent />
     </AuthProvider>
+    </StripeProvider>
+
   );
 }

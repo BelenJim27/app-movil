@@ -2,9 +2,13 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import API from '../services/api';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { CardField } from '@stripe/stripe-react-native';
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useStripe } from '@stripe/stripe-react-native';
 export default function CartScreen({ route, navigation }) {
+  const [cardDetails, setCardDetails] = useState();
+  const stripe = useStripe();
   const { cart: initialCart } = route.params || { cart: [] };
   const [cart, setCart] = useState(initialCart);
   const shippingCost = 5; // Costo de envío fijo
@@ -59,49 +63,50 @@ export default function CartScreen({ route, navigation }) {
         );
         return;
       }
+ // TOTAL EN CENTAVOS
+ const amount = Math.round(calculateTotal() * 100);
+ // Crear PaymentIntent desde el backend
+ const response = await API.post('/create-payment-intent', { amount });
+ const clientSecret = response.data.clientSecret;
 
-      // Si todo está bien, proceder con el pago
-      // Aquí iría la lógica de pago real
-      Alert.alert(
-        'Pago exitoso',
-        'Tu pedido ha sido procesado correctamente.',
-        [{ text: 'OK', onPress: () => navigation.goBack() }]
-      );
+ // Confirmar el pago
+ const { error, paymentIntent } = await stripe.confirmPayment(clientSecret, {
+   paymentMethodType: 'Card',
+ });
 
-      // Actualizar existencias en la base de datos
-     // Antes
-     const updatePromises = cart.map(async (item) => {
-      try {
-        const res = await API.get(`/productos/${item._id}`);
-        const productoActual = res.data.producto;
-        const nuevaExistencia = productoActual.existencia - item.quantity;
-    
-        return API.put(`/productos/${item._id}`, {
-          ...productoActual,
-          existencia: nuevaExistencia
-        });
-      } catch (err) {
-        console.error(`Error al actualizar el producto ${item._id}:`, err);
-      }
-    });
-    
+ if (error) {
+   Alert.alert('Error', error.message);
+   return;
+ }
+ if (paymentIntent && paymentIntent.status === 'Succeeded') {
+  Alert.alert('Pago exitoso', 'Tu pedido ha sido procesado correctamente.');
 
-      
-      await Promise.all(updatePromises);
-      
-      // Limpiar el carrito después del pago
-      setCart([]);
-      
-    } catch (error) {
-      console.error('Error durante el pago:', error);
-      Alert.alert(
-        'Error',
-        'Ocurrió un error al procesar tu pago. Por favor intenta nuevamente.',
-        [{ text: 'OK' }]
-      );
+  // Actualizar existencias y limpiar carrito como ya haces
+  const updatePromises = cart.map(async (item) => {
+    try {
+      const res = await API.get(`/productos/${item._id}`);
+      const productoActual = res.data.producto;
+      const nuevaExistencia = productoActual.existencia - item.quantity;
+
+      return API.put(`/productos/${item._id}`, {
+        ...productoActual,
+        existencia: nuevaExistencia
+      });
+    } catch (err) {
+      console.error(`Error al actualizar el producto ${item._id}:`, err);
     }
-  };
+  });
 
+  await Promise.all(updatePromises);
+  setCart([]);
+  navigation.goBack();
+}
+
+} catch (error) {
+console.error('Error durante el pago:', error);
+Alert.alert('Error', 'Ocurrió un error al procesar el pago.');
+}
+};
   return (
     <View style={styles.container}>
       {cart.length === 0 ? (
@@ -178,7 +183,25 @@ export default function CartScreen({ route, navigation }) {
               <Text style={styles.summaryLabel}>Total</Text>
               <Text style={styles.summaryTotal}>${calculateTotal().toFixed(2)}</Text>
             </View>
-            
+            <CardField
+  postalCodeEnabled={false}
+  placeholder={{
+    number: '4242 4242 4242 4242',
+  }}
+  cardStyle={{
+    backgroundColor: '#FFFFFF',
+    textColor: '#000000',
+  }}
+  style={{
+    width: '100%',
+    height: 50,
+    marginVertical: 10,
+  }}
+  onCardChange={(cardDetails) => {
+    setCardDetails(cardDetails);
+  }}
+/>
+
             <TouchableOpacity 
               style={styles.checkoutButton}
               onPress={handleCheckout}

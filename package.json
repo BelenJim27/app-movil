@@ -34,7 +34,8 @@
     "react-native-screens": "~4.10.0",
     "react-native-toast-message": "^2.3.0",
     "react-native-web": "^0.20.0",
-    "use-latest-callback": "^0.2.3"
+    "use-latest-callback": "^0.2.3",
+    "@stripe/stripe-react-native": "0.45.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
