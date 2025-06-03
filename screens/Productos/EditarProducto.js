@@ -14,7 +14,7 @@ export default function EditarProducto() {
   const [precio, setPrecio] = useState(String(producto.precio));
   const [existencia, setExistencia] = useState(String(producto.existencia));
   const [categoria, setCategoria] = useState(producto.categoria);
-  const [imagen, setImagen] = useState(producto.imagenes || null);
+  const [imagen, setImagen] = useState(producto.imagenes?.[0] || null);
   const [imagenNueva, setImagenNueva] = useState(null);
 
   const seleccionarImagen = async () => {
@@ -77,10 +77,10 @@ export default function EditarProducto() {
       <Text style={styles.title}>Editar Producto</Text>
 
       <TouchableOpacity onPress={seleccionarImagen} style={styles.imagePicker}>
-        <Image
-          source={{ uri: imagenNueva || imagen || 'https://via.placeholder.com/150' }}
-          style={styles.image}
-        />
+      <Image
+  source={{ uri: imagenNueva || (Array.isArray(imagen) ? imagen[0] : imagen) || 'https://via.placeholder.com/150' }}
+  style={styles.image}
+/>
         <Text style={styles.imageText}>Cambiar Imagen</Text>
       </TouchableOpacity>
 

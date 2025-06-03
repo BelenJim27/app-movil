@@ -9,25 +9,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const loadUser = async () => {
-      try {
-        const token = await AsyncStorage.getItem('token');
-        if (token) {
-          const response = await API.get('/users/me'); // Usa un endpoint tipo /users/me para el usuario actual
-          setUser(response.data.user);
-        }
-      } catch (error) {
-        console.error('Error loading user:', error);
-        await AsyncStorage.removeItem('token'); // Token inválido, limpiarlo
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    loadUser();
-  }, []);
+  
 
   const login = async (email, password) => {
     try {

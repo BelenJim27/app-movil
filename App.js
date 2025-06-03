@@ -10,7 +10,7 @@ import ProductosScreen from './screens/Productos/ProductosScreen';
 import CreateUserScreen from './screens/Auth/CreateUserScreen';
 import DetallesProducto from './screens/Productos/ProductosScreen';
 import EditarProducto from './screens/Productos/EditarProducto';
-
+import CartScreen from './screens/CartScreen';
 const Stack = createNativeStackNavigator();
 
 function AuthStack() {
@@ -55,6 +55,11 @@ function MainStack() {
         options={({ route }) => ({
           title: route.params?.producto?.nombre || 'Detalles del Producto',
         })}
+      />
+      <Stack.Screen
+        name="Carrito"
+        component={CartScreen} // Asegúrate de que este sea el componente correcto para editar
+        options={{ title: 'Carrito' }}
       />
       <Stack.Screen
         name="EditarProducto"
