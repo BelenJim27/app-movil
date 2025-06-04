@@ -59,6 +59,7 @@ export default function CategoriasScreen() {
           >
             <Image
               source={{ uri: `http://192.168.137.121:5000/uploads/${item.toLowerCase()}.jpg` }}
+
               style={styles.image}
               onError={() => {}}
             />
