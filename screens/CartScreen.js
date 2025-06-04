@@ -1,6 +1,6 @@
 // screens/CartScreen.js
-import React, { useState } from 'react'; // Asegúrate de importar useState
-import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity, Alert } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity, Alert, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import API from '../services/api';
 import { CardField } from '@stripe/stripe-react-native';
@@ -9,16 +9,15 @@ import { useCart } from '../context/CartContext';
 import { useRoute, useNavigation } from '@react-navigation/native';
 
 
-export default function CartScreen({  }) {
+export default function CartScreen({ navigation }) {
+  const [modalVisible, setModalVisible] = useState(false);
+  const [cardDetails, setCardDetails] = useState(null);
+  const [isProcessing, setIsProcessing] = useState(false);
   const { cart, updateQuantity, removeFromCart, clearCart } = useCart();
-  const [cardDetails, setCardDetails] = useState(); // Ahora useState está correctamente importado
   const stripe = useStripe();
     const navigation = useNavigation();
   
   const shippingCost = 5; // Costo de envío fijo
-
-  // Elimina estas redefiniciones ya que vienen del contexto
-  // updateQuantity y removeFromCart ya están disponibles desde useCart()
 
   const calculateSubtotal = () => {
     return cart.reduce((sum, item) => sum + (item.precio * item.quantity), 0);
@@ -28,9 +27,8 @@ export default function CartScreen({  }) {
     return calculateSubtotal() + shippingCost;
   };
 
-  const handleCheckout = async () => {
+  const validateCart = async () => {
     try {
-      // Primero validar que haya suficiente existencia
       const validationPromises = cart.map(item => 
         API.get(`/productos/${item._id}`)
           .then(res => {
@@ -50,16 +48,30 @@ export default function CartScreen({  }) {
           `Algunos productos no tienen suficiente existencia. Por favor ajusta las cantidades.`,
           [{ text: 'OK' }]
         );
-        return;
+        return false;
       }
+      return true;
+    } catch (error) {
+      console.error('Error validando carrito:', error);
+      Alert.alert('Error', 'Ocurrió un error al validar tu carrito.');
+      return false;
+    }
+  };
 
+  const handleCheckout = async () => {
+    if (!cardDetails?.complete) {
+      Alert.alert('Error', 'Por favor completa los datos de tu tarjeta');
+      return;
+    }
+
+    setIsProcessing(true);
+    
+    try {
       // TOTAL EN CENTAVOS
       const amount = Math.round(calculateTotal() * 100);
-      // Crear PaymentIntent desde el backend
       const response = await API.post('/create-payment-intent', { amount });
       const clientSecret = response.data.clientSecret;
 
-      // Confirmar el pago
       const { error, paymentIntent } = await stripe.confirmPayment(clientSecret, {
         paymentMethodType: 'Card',
       });
@@ -70,9 +82,7 @@ export default function CartScreen({  }) {
       }
 
       if (paymentIntent && paymentIntent.status === 'Succeeded') {
-        Alert.alert('Pago exitoso', 'Tu pedido ha sido procesado correctamente.');
-
-        // Actualizar existencias y limpiar carrito
+        // Actualizar existencias
         const updatePromises = cart.map(async (item) => {
           try {
             const res = await API.get(`/productos/${item._id}`);
@@ -89,12 +99,30 @@ export default function CartScreen({  }) {
         });
 
         await Promise.all(updatePromises);
-        clearCart();
-        navigation.goBack();
+        
+        Alert.alert('Pago exitoso', 'Tu pedido ha sido procesado correctamente.', [
+          {
+            text: 'OK',
+            onPress: () => {
+              clearCart();
+              setModalVisible(false);
+              navigation.goBack();
+            }
+          }
+        ]);
       }
     } catch (error) {
       console.error('Error durante el pago:', error);
       Alert.alert('Error', 'Ocurrió un error al procesar el pago.');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const openPaymentModal = async () => {
+    const isValid = await validateCart();
+    if (isValid) {
+      setModalVisible(true);
     }
   };
 
@@ -127,14 +155,6 @@ export default function CartScreen({  }) {
                     style={styles.cartItemImage} 
                   />
                 </TouchableOpacity>
-               <TouchableOpacity 
-      onPress={() => navigation.navigate('DetallesProducto', { producto: item })}
-    >
-      <Image 
-        source={{ uri: `http://192.168.1.113:5000/${item.imagenes[0]}` }} 
-        style={styles.cartItemImage} 
-      />
-    </TouchableOpacity>
                 <View style={styles.cartItemInfo}>
                   <Text style={styles.cartItemName} numberOfLines={2}>{item.nombre}</Text>
                   <Text style={styles.cartItemPrice}>${item.precio.toFixed(2)} c/u</Text>
@@ -186,32 +206,71 @@ export default function CartScreen({  }) {
               <Text style={styles.summaryLabel}>Total</Text>
               <Text style={styles.summaryTotal}>${calculateTotal().toFixed(2)}</Text>
             </View>
-            <CardField
-              postalCodeEnabled={false}
-              placeholder={{
-                number: '4242 4242 4242 4242',
-              }}
-              cardStyle={{
-                backgroundColor: '#FFFFFF',
-                textColor: '#000000',
-              }}
-              style={{
-                width: '100%',
-                height: 50,
-                marginVertical: 10,
-              }}
-              onCardChange={(cardDetails) => {
-                setCardDetails(cardDetails);
-              }}
-            />
 
             <TouchableOpacity 
               style={styles.checkoutButton}
-              onPress={handleCheckout}
+              onPress={openPaymentModal}
             >
-              <Text style={styles.checkoutButtonText}>Pagar ahora</Text>
+              <Text style={styles.checkoutButtonText}>Ir a pagar</Text>
             </TouchableOpacity>
           </View>
+
+          {/* Modal de pago */}
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={modalVisible}
+            onRequestClose={() => setModalVisible(false)}
+          >
+            <View style={styles.modalOverlay}>
+              <View style={styles.modalContainer}>
+                <View style={styles.modalHeader}>
+                  <Text style={styles.modalTitle}>Información de pago</Text>
+                  <TouchableOpacity 
+                    style={styles.closeButton}
+                    onPress={() => setModalVisible(false)}
+                  >
+                    <Ionicons name="close" size={24} color="#666" />
+                  </TouchableOpacity>
+                </View>
+                
+                <View style={styles.paymentDetails}>
+                  <Text style={styles.totalText}>Total a pagar: ${calculateTotal().toFixed(2)}</Text>
+                  
+                  <CardField
+                    postalCodeEnabled={false}
+                    placeholder={{
+                      number: '4242 4242 4242 4242',
+                    }}
+                    cardStyle={{
+                      backgroundColor: '#FFFFFF',
+                      textColor: '#000000',
+                    }}
+                    style={{
+                      width: '100%',
+                      height: 50,
+                      marginVertical: 20,
+                    }}
+                    onCardChange={(cardDetails) => {
+                      setCardDetails(cardDetails);
+                    }}
+                  />
+                  
+                  <TouchableOpacity 
+                    style={[styles.payButton, isProcessing && styles.payButtonDisabled]}
+                    onPress={handleCheckout}
+                    disabled={isProcessing}
+                  >
+                    {isProcessing ? (
+                      <Text style={styles.payButtonText}>Procesando...</Text>
+                    ) : (
+                      <Text style={styles.payButtonText}>Pagar ahora</Text>
+                    )}
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          </Modal>
         </>
       )}
     </View>
@@ -324,6 +383,56 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   checkoutButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  // Estilos para el modal
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContainer: {
+    width: '90%',
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 20,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  closeButton: {
+    padding: 5,
+  },
+  paymentDetails: {
+    width: '100%',
+  },
+  totalText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  payButton: {
+    backgroundColor: '#FF6B6B',
+    padding: 15,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  payButtonDisabled: {
+    backgroundColor: '#cccccc',
+  },
+  payButtonText: {
     color: 'white',
     fontWeight: 'bold',
     fontSize: 16,

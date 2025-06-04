@@ -82,7 +82,7 @@ export default function ProductosScreen() {
             <View style={styles.imageContainer}>
               {item.imagenes ? (
                 <Image 
-                  source={{ uri: `http://192.168.1.113:5000/${item.imagenes[0]}` }} 
+                  source={{ uri: `http://192.168.1.118:5000/${item.imagenes[0]}` }} 
                   style={styles.productImage} 
                   resizeMode="cover"
                 />
