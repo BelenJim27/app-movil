@@ -1,19 +1,24 @@
 // navigation/MainStack.js
 import React from 'react';
+import { TouchableOpacity} from 'react-native';
+
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import ProductosScreen from '../screens/Productos/ProductosScreen';
 import DetallesProducto from '../screens/Productos/DetallesProducto';
 import EditarProducto from '../screens/Productos/EditarProducto';
 import CategoriasScreen from '../screens/CategoriasScreen';
-
+import { useNavigation } from '@react-navigation/native';
+import CartIcon from '../components/CartIcon';
 const Stack = createNativeStackNavigator();
 
 export default function MainStack() {
   return (
+    //aqui debe ir el boton de salir
     <Stack.Navigator
       screenOptions={{
         headerBackTitleVisible: false,
         headerTintColor: '#000',
+       
       }}
     >
       <Stack.Screen

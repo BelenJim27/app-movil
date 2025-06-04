@@ -58,7 +58,7 @@ export default function CategoriasScreen() {
             onPress={() => navigation.navigate('ProductosPorCategoria', { categoria: item })}
           >
             <Image
-              source={{ uri: `http://192.168.1.88:5000/uploads/${item.toLowerCase()}.jpg` }}
+              source={{ uri: `http://192.168.137.121:5000/uploads/${item.toLowerCase()}.jpg` }}
               style={styles.image}
               onError={() => {}}
             />

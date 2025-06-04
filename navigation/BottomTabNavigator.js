@@ -6,14 +6,17 @@ import { useAuth } from '../context/AuthContext';
 import CartScreen from '../screens/CartScreen';
 import MainStack from './MainStack';
 import userStack from './userStack'; // Asegúrate de que este path sea correcto
-
+import { useCart } from '../context/CartContext';
+import CartIcon from '../components/CartIcon';
 const Tab = createBottomTabNavigator();
 
 export default function BottomTabNavigator() {
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
-
+const { cart } = useCart();
+  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
   return (
+    
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false, // Ocultamos el header para manejar los títulos dentro de cada stack
@@ -35,7 +38,11 @@ export default function BottomTabNavigator() {
       />
       <Tab.Screen 
         name="Carrito" 
-        component={CartScreen} 
+        component={CartScreen}
+        options={{
+          tabBarIcon: ({ color }) => <CartIcon color={color} />,
+          tabBarLabel: 'Carrito',
+        }}
       />
       {isAdmin && (
         <Tab.Screen 

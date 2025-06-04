@@ -12,7 +12,7 @@
   "dependencies": {
     "@expo/metro-runtime": "~4.0.1",
     "@expo/vector-icons": "^14.1.0",
-    "@react-native-async-storage/async-storage": "1.23.1",
+    "@react-native-async-storage/async-storage": "^1.23.1",
     "@react-navigation/bottom-tabs": "^7.3.14",
     "@react-navigation/drawer": "^7.3.12",
     "@react-navigation/native": "^7.1.9",
@@ -38,6 +38,7 @@
     "react-native-toast-message": "^2.3.0",
     "react-native-vector-icons": "^10.2.0",
     "react-native-web": "~0.19.13",
+    "stripe": "^18.2.1",
     "undefined": "stripe/stripe-react-native",
     "use-latest-callback": "^0.2.3"
   },

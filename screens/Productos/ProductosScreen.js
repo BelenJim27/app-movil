@@ -1,8 +1,10 @@
+// screens/ProductosScreen.js
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, ActivityIndicator, StyleSheet, Image, TouchableOpacity, Dimensions } from 'react-native';
 import API from '../../services/api';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
+import { useCart } from '../../context/CartContext';
 
 const { width } = Dimensions.get('window');
 const itemWidth = (width - 30) / 2; // Para mostrar 2 columnas con margen
@@ -11,11 +13,11 @@ export default function ProductosScreen() {
   const route = useRoute();
   const navigation = useNavigation();
   const categoriaSeleccionada = route.params?.categoria || null;
+  const { cart, addToCart } = useCart(); // Usamos el contexto
 
   const [productos, setProductos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [cart, setCart] = useState([]);
 
   useEffect(() => {
     const fetchProductos = async () => {
@@ -38,21 +40,6 @@ export default function ProductosScreen() {
 
     fetchProductos();
   }, [categoriaSeleccionada]);
-
-  const addToCart = (product) => {
-    setCart(prevCart => {
-      const existingItem = prevCart.find(item => item._id === product._id);
-      if (existingItem) {
-        return prevCart.map(item =>
-          item._id === product._id 
-            ? { ...item, quantity: item.quantity + 1 } 
-            : item
-        );
-      } else {
-        return [...prevCart, { ...product, quantity: 1 }];
-      }
-    });
-  };
 
   if (loading) {
     return (
@@ -123,18 +110,7 @@ export default function ProductosScreen() {
         }
       />
       
-      {/* Botón flotante del carrito */}
-      {cart.length > 0 && (
-        <TouchableOpacity 
-          style={styles.cartButton}
-          onPress={() => navigation.navigate('Carrito', { cart })}
-        >
-          <Ionicons name="cart" size={24} color="white" />
-          <View style={styles.cartBadge}>
-            <Text style={styles.cartBadgeText}>{cart.reduce((total, item) => total + item.quantity, 0)}</Text>
-          </View>
-        </TouchableOpacity>
-      )}
+      
     </View>
   );
 }
@@ -143,71 +119,81 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
+    padding: 10,
+  },
+  center: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 16,
   },
   listContainer: {
-    padding: 10,
+    paddingBottom: 20,
   },
   columnWrapper: {
     justifyContent: 'space-between',
+    marginBottom: 15,
   },
   productCard: {
     width: itemWidth,
     backgroundColor: 'white',
     borderRadius: 10,
-    marginBottom: 15,
     overflow: 'hidden',
+    elevation: 3,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 3,
   },
   imageContainer: {
     position: 'relative',
+    height: itemWidth,
+    width: '100%',
   },
   productImage: {
     width: '100%',
-    height: itemWidth * 1.2,
+    height: '100%',
   },
   placeholderImage: {
     width: '100%',
-    height: itemWidth * 1.2,
-    backgroundColor: '#eaeaea',
+    height: '100%',
+    backgroundColor: '#eee',
     justifyContent: 'center',
     alignItems: 'center',
   },
   lowStockBadge: {
     position: 'absolute',
-    top: 5,
-    right: 5,
+    bottom: 5,
+    left: 5,
     backgroundColor: '#FF6B6B',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
     borderRadius: 10,
   },
   lowStockText: {
     color: 'white',
-    fontSize: 10,
-    fontWeight: 'bold',
+    fontSize: 12,
   },
   productInfo: {
     padding: 10,
   },
   productName: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
+    fontWeight: 'bold',
     marginBottom: 5,
   },
   productPrice: {
     fontSize: 16,
+    color: '#FF6B6B',
     fontWeight: 'bold',
-    color: 'rgb(25, 151, 18)',
     marginBottom: 10,
   },
   addToCartButton: {
     flexDirection: 'row',
-    backgroundColor: 'rgb(19, 142, 219) ',
+    backgroundColor: '#FF6B6B',
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 5,
@@ -216,56 +202,39 @@ const styles = StyleSheet.create({
   },
   addToCartText: {
     color: 'white',
-    fontSize: 12,
-    fontWeight: 'bold',
     marginLeft: 5,
-  },
-  center: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  errorText: {
-    color: 'red',
-    fontSize: 16,
-    textAlign: 'center',
+    fontSize: 14,
   },
   emptyText: {
     fontSize: 16,
-    color: '#999',
-    textAlign: 'center',
+    color: '#666',
   },
   cartButton: {
     position: 'absolute',
     bottom: 20,
     right: 20,
-    backgroundColor: ' #1c90ef ',
+    backgroundColor: '#FF6B6B',
     width: 60,
     height: 60,
     borderRadius: 30,
-    alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
+    alignItems: 'center',
     elevation: 5,
   },
   cartBadge: {
     position: 'absolute',
     top: -5,
     right: -5,
-    backgroundColor: '#FF3B30',
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    alignItems: 'center',
+    backgroundColor: 'white',
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     justifyContent: 'center',
+    alignItems: 'center',
   },
   cartBadgeText: {
-    color: 'white',
-    fontSize: 12,
+    color: '#FF6B6B',
     fontWeight: 'bold',
+    fontSize: 12,
   },
 });
