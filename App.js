@@ -12,6 +12,8 @@ import DetallesProducto from './screens/Productos/ProductosScreen';
 import EditarProducto from './screens/Productos/EditarProducto';
 import CartScreen from './screens/CartScreen';
 import { StripeProvider } from '@stripe/stripe-react-native';
+import { Button } from 'react-native-web';
+import BottomTabsNavigator from './navigation/BottomTabNavigator';
 
 const Stack = createNativeStackNavigator();
 
@@ -38,10 +40,10 @@ function MainStack() {
     >
       {/* Este es el Drawer, se usa como "pantalla principal" */}
       <Stack.Screen
-        name="MainDrawer"
-        component={DrawerNavigator}
-        options={{ headerShown: false }}
-      />
+  name="MainTabs"
+  component={BottomTabsNavigator}
+  options={{ headerShown: false }}
+/>
 
       {/* Este es el stack adicional para navegación profunda */}
       <Stack.Screen

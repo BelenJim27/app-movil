@@ -10,35 +10,46 @@
     "web": "expo start --web"
   },
   "dependencies": {
-    "@expo/metro-runtime": "~5.0.4",
-    "@react-native-async-storage/async-storage": "2.1.2",
-    "@react-navigation/bottom-tabs": "^7.3.13",
+    "@expo/metro-runtime": "~4.0.1",
+    "@expo/vector-icons": "^14.1.0",
+    "@react-native-async-storage/async-storage": "1.23.1",
+    "@react-navigation/bottom-tabs": "^7.3.14",
     "@react-navigation/drawer": "^7.3.12",
     "@react-navigation/native": "^7.1.9",
     "@react-navigation/native-stack": "^7.3.10",
     "@react-navigation/stack": "^7.3.2",
+    "@stripe/stripe-react-native": "^0.38.6",
     "axios": "^1.9.0",
-    "expo": "~53.0.0",
-    "expo-image-picker": "~16.1.4",
-    "expo-status-bar": "~2.2.3",
+    "expo": "~52.0.3",
+    "expo-image-picker": "~16.0.6",
+    "expo-status-bar": "~2.0.1",
     "glob": "^11.0.2",
-    "react": "19.0.0",
-    "react-dom": "19.0.0",
-    "react-is": "^19.1.0",
-    "react-native": "0.79.2",
-    "react-native-gesture-handler": "~2.24.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-is": "^18.3.1",
+    "react-native": "0.76.9",
+    "react-native-elements": "^3.4.3",
+    "react-native-gesture-handler": "~2.20.2",
     "react-native-paper": "^5.13.1",
     "react-native-picker-select": "^9.3.1",
-    "react-native-reanimated": "~3.17.4",
-    "react-native-safe-area-context": "5.4.0",
-    "react-native-screens": "~4.10.0",
+    "react-native-reanimated": "~3.16.1",
+    "react-native-safe-area-context": "^4.12.0",
+    "react-native-screens": "~4.4.0",
     "react-native-toast-message": "^2.3.0",
-    "react-native-web": "^0.20.0",
-    "use-latest-callback": "^0.2.3",
-    "@stripe/stripe-react-native": "0.45.0"
+    "react-native-vector-icons": "^10.2.0",
+    "react-native-web": "~0.19.13",
+    "undefined": "stripe/stripe-react-native",
+    "use-latest-callback": "^0.2.3"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
+  },
+  "expo": {
+    "doctor": {
+      "reactNativeDirectoryCheck": {
+        "listUnknownPackages": false
+      }
+    }
   },
   "private": true
 }

@@ -46,7 +46,7 @@ export default function EditarProducto() {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
-      imagenURL = imgRes.data.imagen; // Asegúrate de que el backend devuelve esto
+    imagenURL = imgRes.data.imagenes[0]; // si es array y solo quieres la primera
     }
 
     // Actualizamos el producto
@@ -56,9 +56,9 @@ export default function EditarProducto() {
       precio: parseFloat(precio),
       existencia: parseInt(existencia),
       categoria,
-      imagen: imagenURL,
+      imagenes: imagenURL,
     });
-
+    console.log(imagen);
     if (res.data.success) {
       Alert.alert('Actualizado', 'Producto actualizado correctamente');
       navigation.goBack(); // Esto hará que en DetalleProducto se recargue por useFocusEffect

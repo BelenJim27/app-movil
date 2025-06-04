@@ -73,7 +73,7 @@ export default function DetalleProducto() {
       <View style={styles.image}>
         {producto.imagenes?.[0] && (
           <Image
-            source={{ uri: `http://192.168.1.88:5000/${producto.imagenes[0]}` }}
+            source={{ uri: `http://192.168.1.172:5000/${producto.imagenes[0]}` }}
             style={styles.image}
           />
         )}
