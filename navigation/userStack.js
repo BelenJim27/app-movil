@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import UserListScreen from '../screens/Usuarios/UserListScreen';
 import UserDetails from '../screens/Usuarios/UserDetails';
 import EditUser from '../screens/Usuarios/EditUser';
+import CreateUserScreen from '../screens/Auth/CreateUserScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -16,6 +17,11 @@ export default function UserStack() {
          />
       <Stack.Screen name="DetallesUsuario" component={UserDetails} />
       <Stack.Screen name="EditarUsuario" component={EditUser} />
+      <Stack.Screen 
+        name="CrearUsuario" 
+        component={CreateUserScreen} // Asumiendo que EditUser maneja tanto la edición como la creación
+        options={{ title: 'Crear Usuario' }}
+      />
     </Stack.Navigator>
   );
 }

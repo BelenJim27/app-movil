@@ -1,6 +1,10 @@
 // contexts/CartContext.js
 import React, { createContext, useState, useContext } from 'react';
 import CartIcon from '../components/CartIcon';
+import { useRoute, useNavigation } from '@react-navigation/native';
+import MainStack from '../navigation/MainStack';
+
+
 
 const CartContext = createContext();
 

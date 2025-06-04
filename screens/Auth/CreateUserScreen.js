@@ -3,37 +3,37 @@ import { View, TextInput, Button, Alert, StyleSheet, Text, ActivityIndicator } f
 import API from '../../services/api';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import { useAuth } from '../../context/AuthContext';
 export default function CreateUserScreen({ navigation }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('client');
   const [loading, setLoading] = useState(false);
+  const { register } = useAuth();
 
   const handleCreateUser = async () => {
-    if (!name || !email || !password || !role) {
-      Alert.alert('Campos vacíos', 'Por favor completa todos los campos.');
+    if (!name || !name.trim()) {
+      Alert.alert('Error', 'Por favor ingresa tu nombre');
+      return;
+    }
+
+    if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
+      Alert.alert('Error', 'Por favor ingresa un email válido');
+      return;
+    }
+
+    if (!password || password.length < 6) {
+      Alert.alert('Error', 'La contraseña debe tener al menos 6 caracteres');
       return;
     }
 
     setLoading(true);
     
     try {
-      // 1. Crear el usuario
-      await API.post('/register', { name, email, password, role });
-      
-      // 2. Iniciar sesión automáticamente con las credenciales
-      const loginResponse = await API.post('/login', { email, password });
-      
-      // 3. Guardar el token en AsyncStorage
-      await AsyncStorage.setItem('userToken', loginResponse.data.token);
-      
-      // 4. Redirigir a la pantalla principal
-      navigation.navigate('Categorias');
-      
+      await register(name, email, password);
     } catch (error) {
-      Alert.alert('Error', error.response?.data?.message || error.message);
+      Alert.alert('Error', error.message);
+    } finally {
       setLoading(false);
     }
   };

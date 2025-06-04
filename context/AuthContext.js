@@ -9,7 +9,21 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  
+  const register = async (name, email, password) => {
+    try {
+      const response = await API.post('/register', { name, email, password });
+      
+      // Extraemos los datos de la respuesta
+      const { token, user } = response.data.data;
+      
+      await AsyncStorage.setItem('token', token);
+      setUser(user);
+      return true;
+    } catch (error) {
+      console.error('Register error:', error);
+      throw new Error(error.response?.data?.message || 'Error al registrarse');
+    }
+  };
 
   const login = async (email, password) => {
     try {
@@ -31,7 +45,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{ register,user, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );

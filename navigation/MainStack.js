@@ -7,6 +7,7 @@ import ProductosScreen from '../screens/Productos/ProductosScreen';
 import DetallesProducto from '../screens/Productos/DetallesProducto';
 import EditarProducto from '../screens/Productos/EditarProducto';
 import CategoriasScreen from '../screens/CategoriasScreen';
+import CartScreen from '../screens/CartScreen';
 import { useNavigation } from '@react-navigation/native';
 import CartIcon from '../components/CartIcon';
 const Stack = createNativeStackNavigator();

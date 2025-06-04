@@ -6,11 +6,15 @@ import API from '../services/api';
 import { CardField } from '@stripe/stripe-react-native';
 import { useStripe } from '@stripe/stripe-react-native';
 import { useCart } from '../context/CartContext';
+import { useRoute, useNavigation } from '@react-navigation/native';
 
-export default function CartScreen({ navigation }) {
+
+export default function CartScreen({  }) {
   const { cart, updateQuantity, removeFromCart, clearCart } = useCart();
   const [cardDetails, setCardDetails] = useState(); // Ahora useState está correctamente importado
   const stripe = useStripe();
+    const navigation = useNavigation();
+  
   const shippingCost = 5; // Costo de envío fijo
 
   // Elimina estas redefiniciones ya que vienen del contexto

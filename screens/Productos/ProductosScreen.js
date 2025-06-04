@@ -1,19 +1,23 @@
 // screens/ProductosScreen.js
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, ActivityIndicator, StyleSheet, Image, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator, StyleSheet, Image, TouchableOpacity, Dimensions, ScrollView } from 'react-native';
 import API from '../../services/api';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { useCart } from '../../context/CartContext';
-
+import { useAuth } from '../../context/AuthContext'; // Asegúrate de que el path sea correcto
 const { width } = Dimensions.get('window');
 const itemWidth = (width - 30) / 2; // Para mostrar 2 columnas con margen
+
+// ... tus imports permanecen igual
 
 export default function ProductosScreen() {
   const route = useRoute();
   const navigation = useNavigation();
   const categoriaSeleccionada = route.params?.categoria || null;
-  const { cart, addToCart } = useCart(); // Usamos el contexto
+  const { cart, addToCart } = useCart();
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
 
   const [productos, setProductos] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -40,6 +44,11 @@ export default function ProductosScreen() {
 
     fetchProductos();
   }, [categoriaSeleccionada]);
+
+  const visibleProducts = productos.filter(product => {
+    if (isAdmin) return true; // admin ve todo
+    return product.existencia > 0; // cliente ve solo disponibles
+  });
 
   if (loading) {
     return (
@@ -114,6 +123,7 @@ export default function ProductosScreen() {
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
@@ -237,4 +247,24 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 12,
   },
+  outOfStockBadge: {
+  position: 'absolute',
+  top: 5,
+  left: 5,
+  backgroundColor: 'red',
+  paddingHorizontal: 6,
+  paddingVertical: 2,
+  borderRadius: 5,
+},
+
+outOfStockText: {
+  color: 'white',
+  fontSize: 12,
+  fontWeight: 'bold',
+},
+
+outOfStockCard: {
+  opacity: 0.4,
+},
+
 });
