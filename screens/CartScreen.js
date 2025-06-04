@@ -128,10 +128,14 @@ Alert.alert('Error', 'Ocurrió un error al procesar el pago.');
             contentContainerStyle={styles.listContainer}
             renderItem={({ item }) => (
               <View style={styles.cartItem}>
-                <Image 
-                  source={{ uri: `http://192.168.1.88:5000/${item.imagenes[0]}` }} 
-                  style={styles.cartItemImage} 
-                />
+               <TouchableOpacity 
+      onPress={() => navigation.navigate('DetallesProducto', { producto: item })}
+    >
+      <Image 
+        source={{ uri: `http://192.168.1.88:5000/${item.imagenes[0]}` }} 
+        style={styles.cartItemImage} 
+      />
+    </TouchableOpacity>
                 <View style={styles.cartItemInfo}>
                   <Text style={styles.cartItemName} numberOfLines={2}>{item.nombre}</Text>
                   <Text style={styles.cartItemPrice}>${item.precio.toFixed(2)} c/u</Text>
