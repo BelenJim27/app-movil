@@ -46,6 +46,14 @@ export default function MainStack() {
         component={EditarProducto}
         options={{ title: 'Editar Producto' }}
       />
+      <Stack.Screen
+        name="Carrito"
+        component={CartScreen}
+        options={({ navigation }) => ({
+          title: 'Carrito',
+          
+        })}
+      />
     </Stack.Navigator>
   );
 }

@@ -9,21 +9,30 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  
+
   const register = async (name, email, password) => {
     try {
       const response = await API.post('/register', { name, email, password });
       
-      // Extraemos los datos de la respuesta
+      if (!response.data.success) {
+        throw new Error(response.data.message || 'Registration failed');
+      }
+
+      // Extraer token y datos de usuario
       const { token, user } = response.data.data;
       
+      // Guardar token y actualizar estado
       await AsyncStorage.setItem('token', token);
       setUser(user);
-      return true;
+      
+      return user;
     } catch (error) {
-      console.error('Register error:', error);
-      throw new Error(error.response?.data?.message || 'Error al registrarse');
+      console.error('Registration error:', error);
+      throw error;
     }
   };
+  
 
   const login = async (email, password) => {
     try {
@@ -45,7 +54,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ register,user, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, login,register, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );

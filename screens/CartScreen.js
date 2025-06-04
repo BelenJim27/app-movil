@@ -151,10 +151,19 @@ export default function CartScreen({ navigation }) {
                   onPress={() => navigation.navigate('DetallesProducto', { producto: item })}
                 >
                   <Image 
-                    source={{ uri: `http://192.168.137.121:5000/${item.imagenes[0]}` }} 
+                    source={{ uri: `http://192.168.1.172:5000/${item.imagenes[0]}` }} 
                     style={styles.cartItemImage} 
                   />
                 </TouchableOpacity>
+
+               <TouchableOpacity 
+      onPress={() => navigation.navigate('DetallesProducto', { producto: item })}
+    >
+      <Image 
+        source={{ uri: `http://192.168.1.172:5000/${item.imagenes[0]}` }} 
+        style={styles.cartItemImage} 
+      />
+    </TouchableOpacity>
                 <View style={styles.cartItemInfo}>
                   <Text style={styles.cartItemName} numberOfLines={2}>{item.nombre}</Text>
                   <Text style={styles.cartItemPrice}>${item.precio.toFixed(2)} c/u</Text>

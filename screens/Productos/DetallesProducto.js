@@ -10,7 +10,7 @@ import {
   Dimensions,
   ActivityIndicator
 } from 'react-native';
-import { useRoute, useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useRoute, useNavigation, useFocusEffect,TouchableOpacity } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import API from '../../services/api';
 import Button from '../../components/Button';
@@ -103,7 +103,8 @@ export default function DetalleProducto() {
   renderItem={({ item }) => (
     <View style={styles.imageContainer}>
       <Image
-        source={{ uri: `http://192.168.1.118:5000/${item}` }}
+
+        source={{ uri: `http://192.168.1.172:5000/${item}` }}
         style={styles.carouselImage}
         resizeMode="cover"
       />
@@ -164,6 +165,16 @@ export default function DetalleProducto() {
         </View>
 
         <View style={styles.actionsContainer}>
+          
+  <View style={styles.centeredButtonContainer}>
+    <Button
+      title="Ir al carrito"
+      onPress={() => navigation.navigate('Carrito')}
+      icon={<Ionicons name="cart-outline" size={20} color="#fff" />}
+      style={styles.cartButton}
+    />
+  </View>
+
         {isAdmin && (<Button
             title="Editar Producto"
             onPress={() => navigation.navigate('EditarProducto', { producto })}
@@ -278,4 +289,18 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     backgroundColor: '#e74c3c',
   },
+  centeredButtonContainer: {
+  alignItems: 'center',
+  marginBottom: 20,
+  flex: 1,
+  justifyContent: 'center',
+},
+
+cartButton: {
+  backgroundColor: '#27ae60',
+  paddingHorizontal: 30,
+  paddingVertical: 12,
+  borderRadius: 8,
+},
+
 });

@@ -3,7 +3,7 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../context/AuthContext';
-import ProfileScreen from '../screens/ProfileScreen';
+import ProfileScreen from '../screens/Usuarios/ProfileScreen';
 
 import CartScreen from '../screens/CartScreen';
 import MainStack from './MainStack';
@@ -59,6 +59,7 @@ const { cart } = useCart();
       name="Perfil" 
       component={ProfileScreen} 
     />
+    
 
     </Tab.Navigator>
   );

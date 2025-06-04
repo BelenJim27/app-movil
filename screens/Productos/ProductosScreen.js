@@ -82,7 +82,8 @@ export default function ProductosScreen() {
             <View style={styles.imageContainer}>
               {item.imagenes ? (
                 <Image 
-                  source={{ uri: `http://192.168.1.118:5000/${item.imagenes[0]}` }} 
+
+                  source={{ uri: `http://192.168.1.172:5000/${item.imagenes[0]}` }} 
                   style={styles.productImage} 
                   resizeMode="cover"
                 />
@@ -109,8 +110,10 @@ export default function ProductosScreen() {
                 <Ionicons name="cart" size={16} color="white" />
                 <Text style={styles.addToCartText}>Agregar</Text>
               </TouchableOpacity>
+              
             </View>
           </TouchableOpacity>
+          
         )}
         ListEmptyComponent={
           <View style={styles.center}>

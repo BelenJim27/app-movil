@@ -34,7 +34,7 @@ export default function UserListScreen({ navigation }) {
   };
 
   const handleAddUser = () => {
-    navigation.navigate('CreateUserScreen');
+    navigation.navigate('CrearUsuario');
   };
 
   return (

@@ -9,6 +9,7 @@ import CreateUserScreen from './screens/Auth/CreateUserScreen';
 import { StripeProvider } from '@stripe/stripe-react-native';
 import BottomTabNavigator from './navigation/BottomTabNavigator';
 import { CartProvider } from './context/CartContext';
+import ProfileScreen from './screens/Usuarios/ProfileScreen';
 
 
 const Stack = createNativeStackNavigator();
@@ -21,6 +22,11 @@ function AuthStack() {
         name="Registro"
         component={CreateUserScreen} // Aquí deberías tener un componente de registro
         options={{ title: 'Registro' }}
+      />
+      <Stack.Screen
+        name="Logout"
+        component={ProfileScreen} // Asumiendo que CreateUserScreen maneja tanto la creación como la edición
+        options={{ title: 'Carrar sesion' }}
       />
     </Stack.Navigator>
   );

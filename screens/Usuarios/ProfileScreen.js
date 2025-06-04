@@ -1,13 +1,31 @@
-// screens/ProfileScreen.js
-import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView, Dimensions } from 'react-native';
+import {React}from 'react';
+import { View, Text, StyleSheet, SafeAreaView, Dimensions, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 
 const { width } = Dimensions.get('window');
 
-const ProfileScreen = () => {
-  const { user } = useAuth();
+const ProfileScreen = ({ navigation}) => {
+  const { user, logout } = useAuth();
+
+  const handleLogout = () => {
+    Alert.alert(
+      'Cerrar sesión',
+      '¿Estás seguro de que quieres salir de tu cuenta?',
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel'
+        },
+        { 
+          text: 'Salir', 
+          onPress: () => {
+            logout();
+          }
+        }
+      ]
+    );
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -37,6 +55,15 @@ const ProfileScreen = () => {
             </View>
           </View>
         </View>
+
+        {/* Botón de Logout */}
+        <TouchableOpacity 
+          style={styles.logoutButton}
+          onPress={handleLogout}
+        >
+          <Ionicons name="log-out-outline" size={20} color="#fff" style={styles.logoutIcon} />
+          <Text style={styles.logoutText}>Cerrar sesión</Text>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
@@ -116,6 +143,23 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#2d3436',
     fontWeight: '500',
+  },
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#ff4757',
+    paddingVertical: 12,
+    borderRadius: 8,
+    marginTop: 24,
+  },
+  logoutIcon: {
+    marginRight: 8,
+  },
+  logoutText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
 
