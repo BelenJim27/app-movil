@@ -132,7 +132,7 @@ Alert.alert('Error', 'Ocurrió un error al procesar el pago.');
       onPress={() => navigation.navigate('DetallesProducto', { producto: item })}
     >
       <Image 
-        source={{ uri: `http://192.168.1.88:5000/${item.imagenes[0]}` }} 
+        source={{ uri: `http://192.168.137.121:5000/${item.imagenes[0]}` }} 
         style={styles.cartItemImage} 
       />
     </TouchableOpacity>
