@@ -30,7 +30,7 @@ export default function CreateUserScreen({ navigation }) {
       await AsyncStorage.setItem('userToken', loginResponse.data.token);
       
       // 4. Redirigir a la pantalla principal
-      navigation.navigate('Dashboard');
+      navigation.navigate('Categorias');
       
     } catch (error) {
       Alert.alert('Error', error.response?.data?.message || error.message);
