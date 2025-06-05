@@ -7,9 +7,10 @@ import { CardField } from '@stripe/stripe-react-native';
 import { useStripe } from '@stripe/stripe-react-native';
 import { useCart } from '../context/CartContext';
 import { useRoute, useNavigation } from '@react-navigation/native';
+import { ActivityIndicator } from 'react-native';
 
 
-export default function CartScreen({ navigation }) {
+export default function CartScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [cardDetails, setCardDetails] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -73,13 +74,19 @@ export default function CartScreen({ navigation }) {
       const clientSecret = response.data.clientSecret;
 
       const { error, paymentIntent } = await stripe.confirmPayment(clientSecret, {
-        paymentMethodType: 'Card',
+        paymentMethodType: 'Card',paymentMethodData: {
+          billingDetails: {
+            name: 'Nombre del cliente', // puedes pedirlo como input
+          },
+        },
       });
 
       if (error) {
-        Alert.alert('Error', error.message);
+        console.log(error);
+        Alert.alert('Pago fallido', `Código: ${error.code}\n${error.message}`);
         return;
       }
+      
 
       if (paymentIntent && paymentIntent.status === 'Succeeded') {
         // Actualizar existencias
@@ -224,62 +231,69 @@ export default function CartScreen({ navigation }) {
             </TouchableOpacity>
           </View>
 
-          {/* Modal de pago */}
           <Modal
-            animationType="slide"
-            transparent={true}
-            visible={modalVisible}
-            onRequestClose={() => setModalVisible(false)}
-          >
-            <View style={styles.modalOverlay}>
-              <View style={styles.modalContainer}>
-                <View style={styles.modalHeader}>
-                  <Text style={styles.modalTitle}>Información de pago</Text>
-                  <TouchableOpacity 
-                    style={styles.closeButton}
-                    onPress={() => setModalVisible(false)}
-                  >
-                    <Ionicons name="close" size={24} color="#666" />
-                  </TouchableOpacity>
-                </View>
-                
-                <View style={styles.paymentDetails}>
-                  <Text style={styles.totalText}>Total a pagar: ${calculateTotal().toFixed(2)}</Text>
-                  
-                  <CardField
-                    postalCodeEnabled={false}
-                    placeholder={{
-                      number: '4242 4242 4242 4242',
-                    }}
-                    cardStyle={{
-                      backgroundColor: '#FFFFFF',
-                      textColor: '#000000',
-                    }}
-                    style={{
-                      width: '100%',
-                      height: 50,
-                      marginVertical: 20,
-                    }}
-                    onCardChange={(cardDetails) => {
-                      setCardDetails(cardDetails);
-                    }}
-                  />
-                  
-                  <TouchableOpacity 
-                    style={[styles.payButton, isProcessing && styles.payButtonDisabled]}
-                    onPress={handleCheckout}
-                    disabled={isProcessing}
-                  >
-                    {isProcessing ? (
-                      <Text style={styles.payButtonText}>Procesando...</Text>
-                    ) : (
-                      <Text style={styles.payButtonText}>Pagar ahora</Text>
-                    )}
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </View>
-          </Modal>
+  animationType="slide"
+  transparent={true}
+  visible={modalVisible}
+  onRequestClose={() => setModalVisible(false)}
+>
+  <View style={styles.modalOverlay}>
+    <View style={styles.modalContainer}>
+      <View style={styles.modalHeader}>
+        <Text style={styles.modalTitle}>Método de Pago</Text>
+        <TouchableOpacity 
+          style={styles.closeButton}
+          onPress={() => setModalVisible(false)}
+        >
+          <Ionicons name="close" size={20} color="#666" />
+        </TouchableOpacity>
+      </View>
+      
+      <View style={styles.paymentDetails}>
+        <Text style={styles.totalText}>Total: ${calculateTotal().toFixed(2)}</Text>
+        
+        <View style={styles.cardFieldContainer}>
+          <CardField
+            postalCodeEnabled={false}
+            placeholder={{
+              number: '4242 4242 4242 4242',
+            }}
+            cardStyle={{
+              backgroundColor: '#FFFFFF',
+              textColor: '#000000',
+              borderRadius: 8,
+              fontSize: 16,
+            }}
+            style={{
+              width: '100%',
+              height: 50,
+            }}
+            onCardChange={(cardDetails) => {
+              setCardDetails(cardDetails);
+            }}
+          />
+        </View>
+        
+        <TouchableOpacity 
+          style={[styles.payButton, isProcessing && styles.payButtonDisabled]}
+          onPress={handleCheckout}
+          disabled={isProcessing}
+        >
+          {isProcessing ? (
+            <ActivityIndicator size="small" color="#fff" />
+          ) : (
+            <Text style={styles.payButtonText}>Confirmar Pago</Text>
+          )}
+        </TouchableOpacity>
+        
+        <View style={styles.securePaymentContainer}>
+          <Ionicons name="shield-checkmark" size={14} color="#4CAF50" />
+          <Text style={styles.securePaymentText}>Pago seguro con Stripe</Text>
+        </View>
+      </View>
+    </View>
+  </View>
+</Modal>
         </>
       )}
     </View>
@@ -397,53 +411,100 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   // Estilos para el modal
+  
+  // Estilos para el modal
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    justifyContent: 'flex-end',
   },
   modalContainer: {
-    width: '90%',
+    width: '100%',
     backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 25,
+    paddingBottom: 30,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 10,
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 25,
+    paddingBottom: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
   },
   modalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#333',
   },
   closeButton: {
-    padding: 5,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#f5f5f5',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   paymentDetails: {
     width: '100%',
   },
   totalText: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: 18,
+    fontWeight: '600',
     textAlign: 'center',
-    marginBottom: 10,
+    marginBottom: 25,
+    color: '#444',
+  },
+  cardFieldContainer: {
+    height: 50,
+    width: '100%',
+    marginBottom: 25,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    justifyContent: 'center',
+    backgroundColor: '#fff',
   },
   payButton: {
     backgroundColor: '#FF6B6B',
-    padding: 15,
-    borderRadius: 5,
+    padding: 18,
+    borderRadius: 10,
     alignItems: 'center',
     marginTop: 10,
+    shadowColor: '#FF6B6B',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 5,
   },
   payButtonDisabled: {
-    backgroundColor: '#cccccc',
+    backgroundColor: '#d3d3d3',
+    shadowColor: '#aaa',
   },
   payButtonText: {
     color: 'white',
-    fontWeight: 'bold',
-    fontSize: 16,
+    fontWeight: '600',
+    fontSize: 17,
+    letterSpacing: 0.5,
+  },
+  securePaymentContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  securePaymentText: {
+    fontSize: 12,
+    color: '#888',
+    marginLeft: 5,
   },
 });
