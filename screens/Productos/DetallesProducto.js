@@ -16,6 +16,7 @@ import API from '../../services/api';
 import Button from '../../components/Button';
 import { useAuth } from '../../context/AuthContext';
 import { CartButton, EditButton,DeleteButton } from '../../components/Button';
+import { useCart } from '../../context/CartContext';
 
 const { width } = Dimensions.get('window');
 
@@ -27,7 +28,7 @@ export default function DetalleProducto() {
   const [producto, setProducto] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
-
+  const { addToCart } = useCart();
   const fetchProducto = async () => {
     try {
       setLoading(true);
@@ -166,8 +167,13 @@ export default function DetalleProducto() {
         </View>
 
         <View style={styles.buttonContainer}>
-        <CartButton onPress={() => navigation.navigate('Carrito')} />
-      </View>
+  <CartButton 
+    onPress={() => {
+      addToCart(productos); // Agrega el producto al carrito
+      navigation.navigate('Carrito'); // Luego navega al carrito
+    }} 
+  />
+</View>
 
       {isAdmin && (
         <View style={styles.adminButtonsContainer}>
