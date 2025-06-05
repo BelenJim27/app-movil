@@ -138,7 +138,7 @@ export default function EditarProducto() {
             {imagenes.map((img, index) => (
               <View key={index} style={styles.imagenContainer}>
                 <Image 
-                  source={{ uri: `http://192.168.1.113:5000/${img}` }} 
+                  source={{ uri: `http://192.168.1.120:5000/${img}` }} 
                   style={styles.imagen} 
                 />
                 <TouchableOpacity 

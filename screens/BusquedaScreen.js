@@ -1,20 +1,28 @@
-// screens/ProductosScreen.js
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, ActivityIndicator, StyleSheet, Image, TouchableOpacity, Dimensions, ScrollView } from 'react-native';
-import API from '../../services/api';
+import {
+  View,
+  Text,
+  FlatList,
+  ActivityIndicator,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  Dimensions,
+} from 'react-native';
+import API from '../services/api';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import { useCart } from '../../context/CartContext';
-import { useAuth } from '../../context/AuthContext'; // Asegúrate de que el path sea correcto
+import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
+
 const { width } = Dimensions.get('window');
-const itemWidth = (width - 30) / 2; // Para mostrar 2 columnas con margen
+const itemWidth = (width - 30) / 2;
 
-// ... tus imports permanecen igual
-
-export default function ProductosScreen() {
+export default function BusquedaScreen() {
   const route = useRoute();
   const navigation = useNavigation();
-  const categoriaSeleccionada = route.params?.categoria || null;
+  const { query } = route.params;
+
   const { cart, addToCart } = useCart();
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
@@ -24,16 +32,13 @@ export default function ProductosScreen() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchProductos = async () => {
+    const fetchResultados = async () => {
       try {
-        const res = categoriaSeleccionada
-          ? await API.get(`/productos/categoria/${categoriaSeleccionada}`)
-          : await API.get('/productos');
-
+        const res = await API.get(`/productos?search=${query}`);
         if (res.data.success && res.data.data) {
           setProductos(res.data.data);
         } else {
-          setError('No se pudieron cargar los productos.');
+          setError('No se pudieron cargar los resultados.');
         }
       } catch (err) {
         setError(err.message);
@@ -42,12 +47,12 @@ export default function ProductosScreen() {
       }
     };
 
-    fetchProductos();
-  }, [categoriaSeleccionada]);
+    fetchResultados();
+  }, [query]);
 
   const visibleProducts = productos.filter(product => {
-    if (isAdmin) return true; // admin ve todo
-    return product.existencia > 0; // cliente ve solo disponibles
+    if (isAdmin) return true;
+    return product.existencia > 0;
   });
 
   if (loading) {
@@ -68,8 +73,9 @@ export default function ProductosScreen() {
 
   return (
     <View style={styles.container}>
+      <Text style={styles.title}>Resultados para: "{query}"</Text>
       <FlatList
-        data={productos}
+        data={visibleProducts}
         numColumns={2}
         keyExtractor={(item) => item._id}
         contentContainerStyle={styles.listContainer}
@@ -80,11 +86,10 @@ export default function ProductosScreen() {
             style={styles.productCard}
           >
             <View style={styles.imageContainer}>
-              {item.imagenes ? (
-                <Image 
-
-                  source={{ uri: `http://192.168.1.120:5000/${item.imagenes[0]}` }} 
-                  style={styles.productImage} 
+              {item.imagenes?.length > 0 ? (
+                <Image
+                  source={{ uri: `http://192.168.1.120:5000/${item.imagenes[0]}` }}
+                  style={styles.productImage}
                   resizeMode="cover"
                 />
               ) : (
@@ -98,50 +103,43 @@ export default function ProductosScreen() {
                 </View>
               )}
             </View>
-            
+
             <View style={styles.productInfo}>
-              <Text style={styles.productName} numberOfLines={1}>{item.nombre}</Text>
+              <Text style={styles.productName} numberOfLines={1}>
+                {item.nombre}
+              </Text>
               <Text style={styles.productPrice}>${item.precio.toFixed(2)}</Text>
-              
-              <TouchableOpacity 
+                {isAdmin && item.existencia === 0 && (
+                    <Text style={{ color: 'red', fontWeight: 'bold' }}>Sin existencias</Text>
+                    )}
+
+              <TouchableOpacity
                 style={styles.addToCartButton}
                 onPress={() => addToCart(item)}
               >
                 <Ionicons name="cart" size={16} color="white" />
                 <Text style={styles.addToCartText}>Agregar</Text>
               </TouchableOpacity>
-              
             </View>
           </TouchableOpacity>
-          
         )}
         ListEmptyComponent={
           <View style={styles.center}>
-            <Text style={styles.emptyText}>No hay productos en esta categoría</Text>
+            <Text style={styles.emptyText}>No se encontraron productos</Text>
           </View>
         }
       />
-      
-      
     </View>
   );
 }
 
-
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-    padding: 10,
-  },
-  center: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  errorText: {
-    color: 'red',
+  container: { flex: 1, padding: 10 },
+  title: {
     fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 10,
+    marginLeft: 5,
   },
   listContainer: {
     paddingBottom: 20,
@@ -152,19 +150,16 @@ const styles = StyleSheet.create({
   },
   productCard: {
     width: itemWidth,
-    backgroundColor: 'white',
+    backgroundColor: '#fff',
     borderRadius: 10,
     overflow: 'hidden',
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    elevation: 2,
   },
   imageContainer: {
-    position: 'relative',
-    height: itemWidth,
     width: '100%',
+    height: 120,
+    backgroundColor: '#f5f5f5',
+    position: 'relative',
   },
   productImage: {
     width: '100%',
@@ -173,101 +168,59 @@ const styles = StyleSheet.create({
   placeholderImage: {
     width: '100%',
     height: '100%',
-    backgroundColor: '#eee',
-    justifyContent: 'center',
     alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#ddd',
   },
   lowStockBadge: {
     position: 'absolute',
-    bottom: 5,
+    top: 5,
     left: 5,
     backgroundColor: '#FF6B6B',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 10,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
   },
   lowStockText: {
+    fontSize: 10,
     color: 'white',
-    fontSize: 12,
   },
   productInfo: {
-    padding: 10,
+    padding: 8,
   },
   productName: {
-    fontSize: 14,
     fontWeight: 'bold',
-    marginBottom: 5,
+    fontSize: 14,
+    marginBottom: 4,
   },
   productPrice: {
-    fontSize: 16,
-    color: '#FF6B6B',
-    fontWeight: 'bold',
-    marginBottom: 10,
+    color: '#555',
+    fontSize: 13,
+    marginBottom: 8,
   },
   addToCartButton: {
     flexDirection: 'row',
     backgroundColor: '#FF6B6B',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 5,
+    paddingVertical: 5,
+    borderRadius: 6,
     alignItems: 'center',
     justifyContent: 'center',
   },
   addToCartText: {
-    color: 'white',
-    marginLeft: 5,
-    fontSize: 14,
+    color: '#fff',
+    fontSize: 13,
+    marginLeft: 6,
+  },
+  center: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorText: {
+    color: 'red',
   },
   emptyText: {
     fontSize: 16,
-    color: '#666',
+    color: '#777',
   },
-  cartButton: {
-    position: 'absolute',
-    bottom: 20,
-    right: 20,
-    backgroundColor: '#FF6B6B',
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 5,
-  },
-  cartBadge: {
-    position: 'absolute',
-    top: -5,
-    right: -5,
-    backgroundColor: 'white',
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  cartBadgeText: {
-    color: '#FF6B6B',
-    fontWeight: 'bold',
-    fontSize: 12,
-  },
-  outOfStockBadge: {
-  position: 'absolute',
-  top: 5,
-  left: 5,
-  backgroundColor: 'red',
-  paddingHorizontal: 6,
-  paddingVertical: 2,
-  borderRadius: 5,
-},
-
-outOfStockText: {
-  color: 'white',
-  fontSize: 12,
-  fontWeight: 'bold',
-},
-
-outOfStockCard: {
-  opacity: 0.4,
-},
-
 });

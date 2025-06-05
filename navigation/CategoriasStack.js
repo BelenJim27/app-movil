@@ -11,13 +11,14 @@ export default function CategoriasStack() {
   return (
     <Stack.Navigator
       screenOptions={{
+        headerTitle: () => <HeaderSearchInput />, // Aquí se muestra el buscador en el header
         headerBackTitleVisible: false,
-        headerTintColor: '#000',
+        headerTintColor: '#003',
       }}
     >
       <Stack.Screen name="Categorias" component={CategoriasScreen} />
       <Stack.Screen name="Carrito" component={CartScreen} />
-
+      <Stack.Screen name="Busqueda" component={BusquedaScreen} />
       <Stack.Screen 
         name="ProductosPorCategoria" 
         component={ProductosScreen}

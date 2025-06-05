@@ -2,7 +2,7 @@ import React, { useState, useNavigator } from 'react';
 import { View, TextInput, Button, Alert, StyleSheet, Text, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
 
-export default function CreateUserScreen({ navigation }) {
+export default function CreateUserScreen() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -11,7 +11,6 @@ export default function CreateUserScreen({ navigation }) {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
-  const navigator = useNavigator();
 
   const handleChange = (name, value) => {
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -36,7 +35,6 @@ export default function CreateUserScreen({ navigation }) {
     setLoading(true);
     try {
       await register(formData.name, formData.email, formData.password);
-      navigation.navigate('Login'); // Redirigir a pantalla principal
     } catch (error) {
       // Manejo de errores específicos del servidor
       if (error.response?.data?.errors) {

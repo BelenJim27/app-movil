@@ -15,6 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import API from '../../services/api';
 import Button from '../../components/Button';
 import { useAuth } from '../../context/AuthContext';
+import { CartButton, EditButton,DeleteButton } from '../../components/Button';
 
 const { width } = Dimensions.get('window');
 
@@ -104,7 +105,7 @@ export default function DetalleProducto() {
     <View style={styles.imageContainer}>
       <Image
 
-        source={{ uri: `http://192.168.1.172:5000/${item}` }}
+        source={{ uri: `http://192.168.1.120:5000/${item}` }}
         style={styles.carouselImage}
         resizeMode="cover"
       />
@@ -164,66 +165,62 @@ export default function DetalleProducto() {
           <Text style={styles.text}>{producto.existencia} unidades</Text>
         </View>
 
-        <View style={styles.actionsContainer}>
-          
-  <View style={styles.centeredButtonContainer}>
-    <Button
-      title="Ir al carrito"
-      onPress={() => navigation.navigate('Carrito')}
-      icon={<Ionicons name="cart-outline" size={20} color="#fff" />}
-      style={styles.cartButton}
-    />
-  </View>
+        <View style={styles.buttonContainer}>
+        <CartButton onPress={() => navigation.navigate('Carrito')} />
+      </View>
 
-        {isAdmin && (<Button
-            title="Editar Producto"
-            onPress={() => navigation.navigate('EditarProducto', { producto })}
-            icon={<Ionicons name="create-outline" size={20} color="#fff" />}
-            style={styles.editButton}
-          /> )}
-          
-          {isAdmin && (
-            <Button
-            title="Eliminar Producto"
-            onPress={eliminarProducto}
-            icon={<Ionicons name="trash-outline" size={20} color="#fff" />}
-            style={styles.deleteButton}
-          />      )}
+      {isAdmin && (
+        <View style={styles.adminButtonsContainer}>
+          <EditButton onPress={() => navigation.navigate('EditarProducto', { producto })} />
+          <DeleteButton onPress={eliminarProducto} />
         </View>
+      )}
       </View>
     </ScrollView>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#f8f8f8', // Fondo más claro como las apps de shopping
+  },
+  buttonContainer: {
+    padding: 16,
+    paddingTop: 8,
+  },
+  adminButtonsContainer: {
+    flexDirection: 'row',
+    padding: 16,
+    paddingTop: 0,
+    justifyContent: 'space-between',
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#f8f8f8',
   },
   carouselContainer: {
-    height: 300,
+    height: 380, 
     width: '100%',
-    marginBottom: 10,
-    position: 'relative',
+    marginBottom: 0, 
+    backgroundColor: '#fff', 
   },
   imageContainer: {
     width: width,
-    height: 300,
+    height: 380,
     justifyContent: 'center',
     alignItems: 'center',
+    padding: 10, 
   },
   carouselImage: {
-    width: '90%',
-    height: '90%',
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain', // Para que la imagen se vea completa
   },
   indicatorContainer: {
     position: 'absolute',
-    bottom: -10,
+    bottom: 20, // Más arriba que antes
     left: 0,
     right: 0,
     flexDirection: 'row',
@@ -231,76 +228,91 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   indicator: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#ccc',
-    marginHorizontal: 4,
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: 'rgba(0,0,0,0.2)',
+    marginHorizontal: 3,
   },
   activeIndicator: {
-    backgroundColor: '#2e86de',
+    backgroundColor: '#ff2d55', // Rojo estilo Shein/Amazon
     width: 12,
   },
   detailsContainer: {
-    padding: 20,
+    padding: 15,
+    backgroundColor: '#fff', // Fondo blanco para la sección de detalles
+    marginTop: 5, // Pequeña separación
+    borderRadius: 8, // Bordes redondeados
+    marginHorizontal: 10, // Margen a los lados
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
   productName: {
-    fontSize: 27,
-    fontWeight: 'bold',
+    fontSize: 22, // Un poco más pequeño
+    fontWeight: '600', // Semibold en lugar de bold
     marginBottom: 8,
-    color: '#af20db',
-    
+    color: '#333', // Negro en lugar de morado
   },
   productPrice: {
-    fontSize: 20,
+    fontSize: 24, // Más grande para destacar el precio
     fontWeight: 'bold',
-    color: '#0b76ef',
-    marginBottom: 20,
+    color: '#ff2d55', // Rojo llamativo como en Shein
+    marginBottom: 15,
+  },
+  priceOriginal: {
+    fontSize: 16,
+    color: '#999',
+    textDecorationLine: 'line-through',
+    marginLeft: 8,
+  },
+  discountBadge: {
+    backgroundColor: '#ff2d55',
+    color: 'white',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    fontSize: 12,
+    marginLeft: 8,
   },
   section: {
-    marginBottom: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#f7f7f7',
-    paddingTop: 12,
+    marginBottom: 20, // Más espacio
+    paddingTop: 15,
+    borderTopWidth: 0.5,
+    borderTopColor: '#eee', // Línea más suave
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 8,
+    fontWeight: '600',
+    marginBottom: 10,
     color: '#333',
   },
   text: {
-    fontSize: 16,
-    color: '#555',
-    lineHeight: 24,
+    fontSize: 15, // Un poco más pequeño
+    color: '#666', // Gris un poco más oscuro
+    lineHeight: 22,
   },
   actionsContainer: {
-    marginTop: 30,
+    marginTop: 20,
     flexDirection: 'row',
     justifyContent: 'space-between',
+    paddingHorizontal: 10,
   },
-  editButton: {
-    flex: 1,
-    marginRight: 10,
-    backgroundColor: '#3498db',
+  
+  ratingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 15,
   },
-  deleteButton: {
-    flex: 1,
-    marginLeft: 10,
-    backgroundColor: '#e74c3c',
+  ratingStars: {
+    color: '#ffcc00', // Amarillo para estrellas
+    marginRight: 5,
   },
-  centeredButtonContainer: {
-  alignItems: 'center',
-  marginBottom: 20,
-  flex: 1,
-  justifyContent: 'center',
-},
-
-cartButton: {
-  backgroundColor: '#27ae60',
-  paddingHorizontal: 30,
-  paddingVertical: 12,
-  borderRadius: 8,
-},
-
-});
+  ratingText: {
+    color: '#3483fa',
+    fontSize: 14,
+    marginLeft: 5,
+  },
+}); 

@@ -22,7 +22,7 @@ const { cart } = useCart();
     
     <Tab.Navigator
       screenOptions={({ route }) => ({
-        headerShown: false, // Ocultamos el header para manejar los títulos dentro de cada stack
+        headerShown: true, // Ocultamos el header para manejar los títulos dentro de cada stack
         tabBarActiveTintColor: '#000',
         tabBarIcon: ({ color, size }) => {
           let iconName;
@@ -39,6 +39,7 @@ const { cart } = useCart();
       <Tab.Screen 
         name="Inicio" 
         component={MainStack} // MainStack como pantalla de la pestaña
+        options={{title:'',headerShown: false}}
       />
       <Tab.Screen 
         name="Carrito" 

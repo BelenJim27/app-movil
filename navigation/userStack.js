@@ -11,10 +11,11 @@ const Stack = createNativeStackNavigator();
 
 export default function UserStack() {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator  >
       <Stack.Screen 
         name="Usuarios" 
         component={UserListScreen}
+        options={{title:'', headerShown: false }}
          />
       <Stack.Screen name="DetallesUsuario" component={UserDetails} />
       <Stack.Screen name="EditarUsuario" component={EditUser} />

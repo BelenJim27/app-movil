@@ -7,7 +7,7 @@ import { CardField } from '@stripe/stripe-react-native';
 import { useStripe } from '@stripe/stripe-react-native';
 import { useCart } from '../context/CartContext';
 import { useRoute, useNavigation } from '@react-navigation/native';
-import { ActivityIndicator } from 'react-native';
+import { ActivityIndicator,SafeAreaView } from 'react-native';
 
 
 export default function CartScreen() {
@@ -134,7 +134,7 @@ export default function CartScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       {cart.length === 0 ? (
         <View style={styles.emptyCartContainer}>
           <Ionicons name="cart-outline" size={80} color="#ccc" />
@@ -158,19 +158,10 @@ export default function CartScreen() {
                   onPress={() => navigation.navigate('DetallesProducto', { producto: item })}
                 >
                   <Image 
-                    source={{ uri: `http://192.168.1.172:5000/${item.imagenes[0]}` }} 
+                    source={{ uri: `http://192.168.1.120:5000/${item.imagenes[0]}` }} 
                     style={styles.cartItemImage} 
                   />
                 </TouchableOpacity>
-
-               <TouchableOpacity 
-      onPress={() => navigation.navigate('DetallesProducto', { producto: item })}
-    >
-      <Image 
-        source={{ uri: `http://192.168.1.172:5000/${item.imagenes[0]}` }} 
-        style={styles.cartItemImage} 
-      />
-    </TouchableOpacity>
                 <View style={styles.cartItemInfo}>
                   <Text style={styles.cartItemName} numberOfLines={2}>{item.nombre}</Text>
                   <Text style={styles.cartItemPrice}>${item.precio.toFixed(2)} c/u</Text>
@@ -296,7 +287,7 @@ export default function CartScreen() {
 </Modal>
         </>
       )}
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -304,7 +295,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
-    padding: 10,
+    padding: 0,
   },
   emptyCartContainer: {
     flex: 1,

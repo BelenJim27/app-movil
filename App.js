@@ -10,7 +10,7 @@ import { StripeProvider } from '@stripe/stripe-react-native';
 import BottomTabNavigator from './navigation/BottomTabNavigator';
 import { CartProvider } from './context/CartContext';
 import ProfileScreen from './screens/Usuarios/ProfileScreen';
-
+import { SearchProvider } from './context/SearchContext';
 
 const Stack = createNativeStackNavigator();
 
@@ -48,13 +48,16 @@ export default function App() {
   return (
      
     <AuthProvider>
+      <SearchProvider>
       <CartProvider>
+
         <StripeProvider
           publishableKey="pk_test_51RVT7WPt8YfLrb17pAT5PbSGpVzy0wQz8BdCWO5CUE1BAFNvB92uBlmTjxZTWsn9MnxRbiIkVzRefyyso0BdiqSO00qfabh95N"
         >
         <AppContent />
         </StripeProvider>
       </CartProvider>
+      </SearchProvider>
     </AuthProvider>   
   );
 }
