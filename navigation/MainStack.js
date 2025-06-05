@@ -43,7 +43,7 @@ export default function MainStack() {
       />
       <Stack.Screen
         name="Busqueda"
-        component={BusquedaScreen} // Asumiendo que ProductosScreen maneja la búsqueda
+        component={BusquedaScreen} //   maneja la búsqueda
         options={{ title: 'Buscar Productos' }}
       />
       <Stack.Screen

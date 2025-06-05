@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 16,
-    backgroundColor: '#6C63FF',
+    backgroundColor: '#f0d194',
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
     elevation: 4,
@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: 'white',
+    color: '#f5deb1  ',
   },
   addButton: {
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#6C63FF',
+    backgroundColor: '#ebdabb',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,

@@ -50,11 +50,11 @@ const LoginScreen = ({ navigation }) => {
       >
         <View style={styles.header}>
           <Image 
-            source={require('../../assets/icon.png')} 
-            style={styles.logo} 
+              source={{ uri: `http://192.168.1.120:5000/uploads/logonaby.png` }} 
+              style={styles.logo} 
           />
-          <Text style={styles.welcomeText}>Bienvenido de nuevo</Text>
-          <Text style={styles.subtitle}>Inicia sesión para continuar</Text>
+          <Text style={styles.welcomeText}> Iniciar Sesión</Text>
+          <Text style={styles.subtitle}>Bienvenido de nuevo</Text>
         </View>
 
         <View style={styles.formContainer}>
@@ -137,19 +137,29 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
   },
   logo: {
-    width: 80,
-    height: 80,
-    marginBottom: 20,
+    width: 150, //  100
+    height: 150, //  100
+    marginBottom: 60,
   },
-  welcomeText: {
+  comeText: {
     fontSize: 24,
     fontWeight: '600',
     color: '#333',
     marginBottom: 8,
   },
+  welcomeText: {
+    fontSize: 28,
+    fontWeight: '700',  // negritas
+    color: '#181d1d',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  
   subtitle: {
-    fontSize: 16,
-    color: '#666',
+    fontSize: 18,
+    fontWeight: '400',
+    color: '#888',
+    textAlign: 'center',
   },
   formContainer: {
     paddingHorizontal: 30,

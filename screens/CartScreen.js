@@ -10,13 +10,12 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import { ActivityIndicator,SafeAreaView } from 'react-native';
 
 
-export default function CartScreen() {
+export default function CartScreen({ navigation }) {
   const [modalVisible, setModalVisible] = useState(false);
   const [cardDetails, setCardDetails] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const { cart, updateQuantity, removeFromCart, clearCart } = useCart();
   const stripe = useStripe();
-    const navigation = useNavigation();
   
   const shippingCost = 5; // Costo de envío fijo
 
@@ -308,7 +307,7 @@ const styles = StyleSheet.create({
     marginVertical: 20,
   },
   continueShoppingButton: {
-    backgroundColor: '#FF6B6B',
+    backgroundColor: '#ebc387',
     padding: 15,
     borderRadius: 5,
   },
@@ -387,10 +386,10 @@ const styles = StyleSheet.create({
   summaryTotal: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#FF6B6B',
+    color: '#17a156 ',
   },
   checkoutButton: {
-    backgroundColor: '#FF6B6B',
+    backgroundColor: '#79a9dc',
     padding: 15,
     borderRadius: 5,
     alignItems: 'center',
@@ -452,7 +451,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     textAlign: 'center',
     marginBottom: 25,
-    color: '#444',
+    color: '#7a12c ',
   },
   cardFieldContainer: {
     height: 50,
@@ -466,19 +465,19 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   payButton: {
-    backgroundColor: '#FF6B6B',
+    backgroundColor: '#79a9dc',
     padding: 18,
     borderRadius: 10,
     alignItems: 'center',
     marginTop: 10,
-    shadowColor: '#FF6B6B',
+    shadowColor: '#ebc387',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 6,
     elevation: 5,
   },
   payButtonDisabled: {
-    backgroundColor: '#d3d3d3',
+    backgroundColor: '#79a9dc',
     shadowColor: '#aaa',
   },
   payButtonText: {

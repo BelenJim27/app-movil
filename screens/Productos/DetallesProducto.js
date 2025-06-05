@@ -259,7 +259,7 @@ const styles = StyleSheet.create({
   productPrice: {
     fontSize: 24, // Más grande para destacar el precio
     fontWeight: 'bold',
-    color: '#ff2d55', // Rojo llamativo como en Shein
+    color: '#007AFF', // 
     marginBottom: 15,
   },
   priceOriginal: {

@@ -194,13 +194,13 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   productPrice: {
-    color: '#555',
+    color: '#007AFF',
     fontSize: 13,
     marginBottom: 8,
   },
   addToCartButton: {
     flexDirection: 'row',
-    backgroundColor: '#FF6B6B',
+    backgroundColor: '#ebc387',
     paddingVertical: 5,
     borderRadius: 6,
     alignItems: 'center',

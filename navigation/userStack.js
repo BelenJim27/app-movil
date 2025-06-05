@@ -17,7 +17,10 @@ export default function UserStack() {
         component={UserListScreen}
         options={{title:'', headerShown: false }}
          />
-      <Stack.Screen name="DetallesUsuario" component={UserDetails} />
+      <Stack.Screen name="DetallesUsuario" component={UserDetails} 
+              options={{title:'', headerShown: false }}
+
+      />
       <Stack.Screen name="EditarUsuario" component={EditUser} />
       <Stack.Screen 
         name="CrearUsuario" 

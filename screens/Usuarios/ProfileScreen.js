@@ -32,7 +32,7 @@ const ProfileScreen = ({ navigation}) => {
       <View style={styles.card}>
         <View style={styles.header}>
           <View style={styles.avatarContainer}>
-            <Ionicons name="person-circle-outline" size={100} color="#6c5ce7" />
+            <Ionicons name="person-circle-outline" size={100} color="#ebc387" />
           </View>
           <Text style={styles.title}>{user?.name || 'Usuario sin nombre'}</Text>
           <Text style={styles.subtitle}>{user?.email}</Text>
@@ -40,7 +40,7 @@ const ProfileScreen = ({ navigation}) => {
 
         <View style={styles.detailsContainer}>
           <View style={styles.detailItem}>
-            <Ionicons name="person-outline" size={20} color="#6c5ce7" style={styles.detailIcon} />
+            <Ionicons name="person-outline" size={20} color="#6cb1cc" style={styles.detailIcon} />
             <View>
               <Text style={styles.detailLabel}>Rol</Text>
               <Text style={styles.detailValue}>{user?.role || 'No definido'}</Text>
@@ -48,7 +48,7 @@ const ProfileScreen = ({ navigation}) => {
           </View>
 
           <View style={styles.detailItem}>
-            <Ionicons name="key-outline" size={20} color="#6c5ce7" style={styles.detailIcon} />
+            <Ionicons name="key-outline" size={20} color="#6cb1cc" style={styles.detailIcon} />
             <View>
               <Text style={styles.detailLabel}>ID de usuario</Text>
               <Text style={styles.detailValue}>{user?.id || 'N/A'}</Text>
@@ -72,9 +72,9 @@ const ProfileScreen = ({ navigation}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#f8f9fa ',
     justifyContent: 'center',
-    paddingHorizontal: 24,
+    paddingHorizontal: 24,  
   },
   card: {
     backgroundColor: '#fff',
@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   avatarContainer: {
-    backgroundColor: '#f3f0ff',
+    backgroundColor: '#fffbf0',
     width: 120,
     height: 120,
     borderRadius: 60,
@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 16,
     borderWidth: 3,
-    borderColor: '#e9e3ff',
+    borderColor: '#ffedbd',
   },
   title: {
     fontSize: 24,
@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#ff4757',
+    backgroundColor: '#d3887f ',
     paddingVertical: 12,
     borderRadius: 8,
     marginTop: 24,

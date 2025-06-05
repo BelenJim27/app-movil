@@ -9,7 +9,7 @@ const UserDetails = ({ route, navigation }) => {
     <SafeAreaView style={styles.container}>
       <View style={styles.card}>
         <View style={styles.header}>
-          <Ionicons name="person-circle" size={80} color="#6c5ce7" />
+          <Ionicons name="person-circle" size={80} color="#ebc387" />
           <Text style={styles.title}>{user.email}</Text>
         </View>
 
@@ -27,7 +27,7 @@ const UserDetails = ({ route, navigation }) => {
         <Button 
           title="Editar Usuario" 
           onPress={() => navigation.navigate('EditarUsuario', { user })} 
-          color="#6c5ce7"
+          color="#79a9dc"
         />
       </View>
     </SafeAreaView>

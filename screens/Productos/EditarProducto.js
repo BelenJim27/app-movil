@@ -372,7 +372,7 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
   },
   botonGuardar: {
-    backgroundColor: '#27ae60',
+    backgroundColor: '#007AFF',
     borderRadius: 8,
     padding: 16,
     justifyContent: 'center',
