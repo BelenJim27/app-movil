@@ -18,33 +18,41 @@ export default function ProductosScreen() {
   const { cart, addToCart } = useCart();
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
-
+  const [refreshing, setRefreshing] = useState(false);
   const [productos, setProductos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchProductos = async () => {
-      try {
-        const res = categoriaSeleccionada
-          ? await API.get(`/productos/categoria/${categoriaSeleccionada}`)
-          : await API.get('/productos');
+  const fetchProductos = async () => {
+    try {
+      setLoading(true);
+      const res = categoriaSeleccionada
+        ? await API.get(`/productos/categoria/${categoriaSeleccionada}`)
+        : await API.get('/productos');
 
-        if (res.data.success && res.data.data) {
-          setProductos(res.data.data);
-        } else {
-          setError('No se pudieron cargar los productos.');
-        }
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
+      if (res.data.success && res.data.data) {
+        setProductos(res.data.data);
+      } else {
+        setError('No se pudieron cargar los productos.');
       }
-    };
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+      setRefreshing(false); 
+    }
+  };
 
+  // useEffect ahora usa fetchProductos
+  useEffect(() => {
     fetchProductos();
   }, [categoriaSeleccionada]);
 
+  // handleRefresh ya puede acceder a fetchProductos
+  const handleRefresh = () => {
+    setRefreshing(true);
+    fetchProductos();
+  };
   const visibleProducts = productos.filter(product => {
     if (isAdmin) return true; // admin ve todo
     return product.existencia > 0; // cliente ve solo disponibles
@@ -74,6 +82,8 @@ export default function ProductosScreen() {
         keyExtractor={(item) => item._id}
         contentContainerStyle={styles.listContainer}
         columnWrapperStyle={styles.columnWrapper}
+        refreshing={refreshing} 
+        onRefresh={handleRefresh}
         renderItem={({ item }) => (
           <TouchableOpacity
             onPress={() => navigation.navigate('DetallesProducto', { producto: item })}
