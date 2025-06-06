@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'; // Correct
 
 const API = axios.create({
 
-  baseURL: 'http://192.168.1.120:5000/api', // Asegúrate de que tu backend esté corriendo aquí
+  baseURL: 'https://api-server-zen2.onrender.com/:5000/api', // Asegúrate de que tu backend esté corriendo aquí
   headers: {
     'Content-Type': 'application/json',
   },

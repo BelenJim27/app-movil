@@ -50,7 +50,7 @@ const LoginScreen = ({ navigation }) => {
       >
         <View style={styles.header}>
           <Image 
-              source={{ uri: `http://192.168.1.120:5000/uploads/logonaby.png` }} 
+              source={{ uri: `https://api-server-zen2.onrender.com/:5000/uploads/logonaby.png` }} 
               style={styles.logo} 
           />
           <Text style={styles.welcomeText}> Iniciar Sesión</Text>

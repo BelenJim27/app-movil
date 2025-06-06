@@ -58,7 +58,7 @@ export default function CategoriasScreen() {
             onPress={() => navigation.navigate('ProductosPorCategoria', { categoria: item })}
           >
             <Image
-              source={{ uri: `http://192.168.1.120:5000/uploads/${item.toLowerCase()}.jpg` }}
+              source={{ uri: `https://api-server-zen2.onrender.com/:5000/uploads/${item.toLowerCase()}.jpg` }}
 
               style={styles.image}
               onError={() => {}}
