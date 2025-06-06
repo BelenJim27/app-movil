@@ -6,7 +6,6 @@ import * as ImagePicker from 'expo-image-picker';
 import API from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
-import ModalDropdown from 'react-native-modal-dropdown';
 
 export default function CrearProducto() {
   const { user } = useAuth();
@@ -250,14 +249,15 @@ export default function CrearProducto() {
           
 // ...
 
-<ModalDropdown
-  options={['Amigurumi', 'Ramos', 'Accesorios', 'Macetas', 'Llaveros', 'Bolsas']}
-  defaultValue="Selecciona una categoría"
-  onSelect={(index, value) => handleChange('categoria', value)}
-  style={styles.dropdown}
-  textStyle={styles.dropdownText}
-  dropdownStyle={styles.dropdownMenu}
-/>
+<View style={styles.inputContainer}>
+            <Text style={styles.inputLabel}>Categoría</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Ej. Electrónica, Ropa, etc."
+              value={formData.categoria}
+              onChangeText={(text) => handleChange('categoria', text)}
+            />
+          </View>
           
           <View style={styles.row}>
             <View style={[styles.inputContainer, { flex: 1, marginRight: 10 }]}>

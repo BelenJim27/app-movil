@@ -34,3 +34,4 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
+EXTRA_GRADLE_ARGS=--stacktrace

@@ -88,7 +88,7 @@ export default function BusquedaScreen() {
             <View style={styles.imageContainer}>
               {item.imagenes?.length > 0 ? (
                 <Image
-                  source={{ uri: `http://10.168.113.245:5000/${item.imagenes[0]}` }}
+                  source={{ uri: `http://192.168.1.120:5000/${item.imagenes[0]}` }}
                   style={styles.productImage}
                   resizeMode="cover"
                 />
