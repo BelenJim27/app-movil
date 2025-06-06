@@ -157,7 +157,7 @@ export default function CartScreen({ navigation }) {
                   onPress={() => navigation.navigate('DetallesProducto', { producto: item })}
                 >
                   <Image 
-                    source={{ uri: `http://192.168.1.120:5000/${item.imagenes[0]}` }} 
+                    source={{ uri: `http://10.168.113.245:5000/${item.imagenes[0]}` }} 
                     style={styles.cartItemImage} 
                   />
                 </TouchableOpacity>

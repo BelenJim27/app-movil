@@ -77,6 +77,7 @@ export default function ProductosScreen() {
   return (
     <View style={styles.container}>
       <FlatList
+      
         data={productos}
         numColumns={2}
         keyExtractor={(item) => item._id}
@@ -131,7 +132,14 @@ export default function ProductosScreen() {
           </View>
         }
       />
-      
+        {isAdmin && (
+      <TouchableOpacity
+        style={styles.addButton}
+        onPress={() => navigation.navigate('AddProduct')}
+      >
+        <Ionicons name="add" size={30} color="white" />
+      </TouchableOpacity>
+    )}
       
     </View>
   );

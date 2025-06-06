@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
     marginRight: 5,
   },
   cartButton: {
-    backgroundColor: '#FF6B00', // Naranja llamativo como Amazon
+    backgroundColor: '#ebc387', // Naranja llamativo 
     width: '100%',
   },
   editButton: {

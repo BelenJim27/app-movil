@@ -10,7 +10,7 @@ import MainStack from './MainStack';
 import userStack from './userStack'; // Asegúrate de que este path sea correcto
 import { useCart } from '../context/CartContext';
 import CartIcon from '../components/CartIcon';
-
+import AddProductScreen from '../screens/Productos/AddProductScreen';
 const Tab = createBottomTabNavigator();
 
 export default function BottomTabNavigator() {
@@ -29,7 +29,9 @@ const { cart } = useCart();
 
           if (route.name === 'Inicio') iconName = 'home';
           else if (route.name === 'Carrito') iconName = 'cart';
-          else if (route.name === 'Usuarios') iconName = 'person';
+          else if (route.name === 'Usuarios') iconName = 'add';
+          else if (route.name === 'Agregar') iconName = 'add-circle';
+
           else if (route.name === 'Perfil') iconName = 'person';
 
           return <Ionicons name={iconName} size={size} color={color} />;
@@ -60,7 +62,12 @@ const { cart } = useCart();
       name="Perfil" 
       component={ProfileScreen} 
     />
-    
+          {isAdmin && (
+
+     <Tab.Screen 
+      name="Agregar" 
+      component={AddProductScreen} 
+    />  )}
 
     </Tab.Navigator>
   );
