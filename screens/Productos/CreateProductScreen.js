@@ -1,30 +1,29 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, ScrollView,  KeyboardAvoidingView,
+import { View, Text, TextInput, ScrollView, KeyboardAvoidingView, 
   Platform, StyleSheet, Image, Alert, TouchableOpacity } from 'react-native';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import API from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
 
-export default function EditarProducto() {
+export default function CrearProducto() {
   const { user } = useAuth();
-  const route = useRoute();
   const navigation = useNavigation();
-  const { producto } = route.params;
 
   const [formData, setFormData] = useState({
-    nombre: producto.nombre,
-    descripcion: producto.descripcion || '',
-    precio: producto.precio.toString(),
-    existencia: producto.existencia.toString(),
-    categoria: producto.categoria || '',
-    material: producto.material || '',
-    color: producto.color || '',
+    nombre: '',
+    descripcion: '',
+    precio: '',
+    existencia: '',
+    categoria: '',
+    material: '',
+    color: '',
   });
 
-  const [imagenes, setImagenes] = useState(producto.imagenes || []);
+  const [imagenes, setImagenes] = useState([]);
   const [cargandoImagen, setCargandoImagen] = useState(false);
+  const [creandoProducto, setCreandoProducto] = useState(false);
 
   const handleChange = (name, value) => {
     setFormData({ ...formData, [name]: value });
@@ -68,54 +67,78 @@ export default function EditarProducto() {
         type: 'image/jpeg',
       });
 
-      const res = await API.post(
-        `/productos/${producto._id}/imagenes`,
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            'Authorization': `Bearer ${user.token}`
-          }
-        }
-      );
-      
-      setImagenes(res.data.imagenes);
+      // Las imágenes se subirán cuando se cree el producto
+      setImagenes(prev => [...prev, { uri, uploading: false }]);
     } catch (error) {
-      console.error('Error al subir imagen:', error);
+      console.error('Error al preparar imagen:', error);
       throw error;
     }
   };
 
-  const eliminarImagen = async (imagenUrl) => {
-    try {
-      await API.delete(`/productos/${producto._id}/imagenes`, {
-        data: { imagenUrl },
-        headers: { Authorization: `Bearer ${user.token}` }
-      });
-      setImagenes(imagenes.filter(img => img !== imagenUrl));
-    } catch (error) {
-      Alert.alert('Error', 'No se pudo eliminar la imagen');
-    }
+  const eliminarImagen = (index) => {
+    const nuevasImagenes = [...imagenes];
+    nuevasImagenes.splice(index, 1);
+    setImagenes(nuevasImagenes);
   };
 
-  const actualizarProducto = async () => {
-    try {
-      const res = await API.put(
-        `/productos/${producto._id}`,
-        {
-          ...formData,
-          precio: parseFloat(formData.precio),
-          existencia: parseInt(formData.existencia)
-        },
-        {
-          headers: { Authorization: `Bearer ${user.token}` }
-        }
-      );
+  const crearProducto = async () => {
+    if (!formData.nombre || !formData.precio || !formData.existencia) {
+      Alert.alert('Campos requeridos', 'Por favor complete al menos nombre, precio y existencia');
+      return;
+    }
 
-      Alert.alert('Éxito', 'Producto actualizado correctamente');
+    if (imagenes.length === 0) {
+      Alert.alert('Imágenes requeridas', 'Debe subir al menos una imagen del producto');
+      return;
+    }
+
+    setCreandoProducto(true);
+
+    try {
+      // Primero creamos el producto con los datos básicos
+      const productoData = {
+        nombre: formData.nombre,
+        descripcion: formData.descripcion,
+        precio: parseFloat(formData.precio),
+        existencia: parseInt(formData.existencia),
+        categoria: formData.categoria,
+        material: formData.material,
+        color: formData.color
+      };
+
+      // Crear FormData para enviar las imágenes
+      const formDataToSend = new FormData();
+      formDataToSend.append('nombre', productoData.nombre);
+      formDataToSend.append('descripcion', productoData.descripcion);
+      formDataToSend.append('precio', productoData.precio.toString());
+      formDataToSend.append('existencia', productoData.existencia.toString());
+      formDataToSend.append('categoria', productoData.categoria);
+      formDataToSend.append('material', productoData.material);
+      formDataToSend.append('color', productoData.color);
+
+      // Agregar imágenes al FormData
+      imagenes.forEach((img, index) => {
+        formDataToSend.append('imagenes', {
+          uri: img.uri,
+          name: `imagen_${index}.jpg`,
+          type: 'image/jpeg'
+        });
+      });
+
+      const res = await API.post('/productos', formDataToSend, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${user.token}`
+        }
+      });
+
+      Alert.alert('Éxito', 'Producto creado correctamente');
       navigation.goBack();
     } catch (error) {
-      Alert.alert('Error', error.response?.data?.message || 'Error al actualizar');
+      console.error('Error al crear producto:', error);
+      Alert.alert('Error', error.response?.data?.message || 'Error al crear el producto');
+    } finally {
+      setCreandoProducto(false);
     }
   };
 
@@ -129,21 +152,21 @@ export default function EditarProducto() {
         contentContainerStyle={styles.scrollContainer}
         keyboardShouldPersistTaps="handled"
       >
-        <Text style={styles.title}>Editar Producto</Text>
+        <Text style={styles.title}>Crear Nuevo Producto</Text>
   
-        {/* Sección de imágenes - Ahora más grande */}
+        {/* Sección de imágenes */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Imágenes del Producto</Text>
           <View style={styles.galeriaContainer}>
             {imagenes.map((img, index) => (
               <View key={index} style={styles.imagenContainer}>
                 <Image 
-                  source={{ uri: `https://api-server-zen2.onrender.com/${img}` }} 
+                  source={{ uri: img.uri }} 
                   style={styles.imagen} 
                 />
                 <TouchableOpacity 
                   style={styles.botonEliminar}
-                  onPress={() => eliminarImagen(img)}
+                  onPress={() => eliminarImagen(index)}
                 >
                   <Ionicons name="trash" size={18} color="white" />
                 </TouchableOpacity>
@@ -167,37 +190,38 @@ export default function EditarProducto() {
           </View>
         </View>
         
-      {/* Información básica - Con más espacio */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Información Básica</Text>
-        <View style={styles.inputContainer}>
-          <Text style={styles.inputLabel}>Nombre del Producto</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Ej. Camiseta de algodón"
-            value={formData.nombre}
-            onChangeText={(text) => handleChange('nombre', text)}
-          />
-        </View>
+        {/* Información básica */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Información Básica</Text>
+          <View style={styles.inputContainer}>
+            <Text style={styles.inputLabel}>Nombre del Producto *</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Ej. Camiseta de algodón"
+              value={formData.nombre}
+              onChangeText={(text) => handleChange('nombre', text)}
+            />
+          </View>
 
-        <View style={[styles.inputContainer, { marginTop: 15 }]}>
-          <Text style={styles.inputLabel}>Descripción</Text>
-          <TextInput
-            style={[styles.input, styles.textArea]}
-            placeholder="Describe detalladamente el producto..."
-            value={formData.descripcion}
-            onChangeText={(text) => handleChange('descripcion', text)}
-            multiline
-            numberOfLines={4}
-          />
+          <View style={[styles.inputContainer, { marginTop: 15 }]}>
+            <Text style={styles.inputLabel}>Descripción</Text>
+            <TextInput
+              style={[styles.input, styles.textArea]}
+              placeholder="Describe detalladamente el producto..."
+              value={formData.descripcion}
+              onChangeText={(text) => handleChange('descripcion', text)}
+              multiline
+              numberOfLines={4}
+            />
+          </View>
         </View>
-      </View>
+        
         {/* Precio e inventario */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Precio e Inventario</Text>
+          <Text style={styles.sectionTitle}>Precio e Inventario *</Text>
           <View style={styles.row}>
             <View style={[styles.inputContainer, { flex: 1, marginRight: 10 }]}>
-              <Text style={styles.inputLabel}>Precio</Text>
+              <Text style={styles.inputLabel}>Precio *</Text>
               <TextInput
                 style={styles.input}
                 placeholder="0.00"
@@ -207,7 +231,7 @@ export default function EditarProducto() {
               />
             </View>
             <View style={[styles.inputContainer, { flex: 1 }]}>
-              <Text style={styles.inputLabel}>Existencia</Text>
+              <Text style={styles.inputLabel}>Existencia *</Text>
               <TextInput
                 style={styles.input}
                 placeholder="0"
@@ -255,10 +279,15 @@ export default function EditarProducto() {
         </View>
 
         <TouchableOpacity 
-          style={styles.botonGuardar}
-          onPress={actualizarProducto}
+          style={[styles.botonGuardar, creandoProducto && styles.botonDeshabilitado]}
+          onPress={crearProducto}
+          disabled={creandoProducto}
         >
-          <Text style={styles.botonGuardarTexto}>Guardar Cambios</Text>
+          {creandoProducto ? (
+            <Text style={styles.botonGuardarTexto}>Creando Producto...</Text>
+          ) : (
+            <Text style={styles.botonGuardarTexto}>Crear Producto</Text>
+          )}
         </TouchableOpacity>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -303,15 +332,14 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'flex-start',
   },
- 
   imagen: {
     width: '100%',
     height: '100%',
     resizeMode: 'cover',
   },
   imagenContainer: {
-    width: 100,  // Aumentado de 80 a 100
-    height: 100, // Aumentado de 80 a 100
+    width: 100,
+    height: 100,
     marginRight: 10,
     marginBottom: 10,
     borderRadius: 10,
@@ -319,8 +347,8 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   imagenAgregarContainer: {
-    width: 100,  // Aumentado de 80 a 100
-    height: 100, // Aumentado de 80 a 100
+    width: 100,
+    height: 100,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
@@ -352,10 +380,10 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   inputLabel: {
-    fontSize: 14, // Aumentado de 13 a 14
-    color: '#5d6d7e', // Color más oscuro
-    marginBottom: 6, // Aumentado de 4 a 6
-    fontWeight: '500', // Más visible
+    fontSize: 14,
+    color: '#5d6d7e',
+    marginBottom: 6,
+    fontWeight: '500',
   },
   input: {
     backgroundColor: '#f8f9fa',
@@ -368,7 +396,7 @@ const styles = StyleSheet.create({
     color: '#2c3e50',
   },
   textArea: {
-    minHeight: 100, // Aumentado de 80 a 100
+    minHeight: 100,
     textAlignVertical: 'top',
   },
   botonGuardar: {
@@ -383,6 +411,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 3,
+  },
+  botonDeshabilitado: {
+    backgroundColor: '#95a5a6',
   },
   botonGuardarTexto: {
     color: '#fff',

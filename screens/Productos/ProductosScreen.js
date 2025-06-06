@@ -94,7 +94,7 @@ export default function ProductosScreen() {
               {item.imagenes ? (
                 <Image 
 
-                  source={{ uri: `https://api-server-zen2.onrender.com/:5000/${item.imagenes[0]}` }} 
+                  source={{ uri: `https://api-server-zen2.onrender.com/${item.imagenes[0]}` }} 
                   style={styles.productImage} 
                   resizeMode="cover"
                 />

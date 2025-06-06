@@ -106,7 +106,7 @@ export default function DetalleProducto() {
     <View style={styles.imageContainer}>
       <Image
 
-        source={{ uri: `https://api-server-zen2.onrender.com/:5000/${item}` }}
+        source={{ uri: `https://api-server-zen2.onrender.com/${item}` }}
         style={styles.carouselImage}
         resizeMode="cover"
       />

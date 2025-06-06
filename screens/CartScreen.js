@@ -162,7 +162,7 @@ export default function CartScreen() {
                   onPress={() => navigation.navigate('DetallesProducto', { producto: item })}
                 >
                   <Image 
-                    source={{ uri: `https://api-server-zen2.onrender.com/:5000/${item.imagenes[0]}` }} 
+                    source={{ uri: `https://api-server-zen2.onrender.com/${item.imagenes[0]}` }} 
                     style={styles.cartItemImage} 
                   />
                 </TouchableOpacity>
@@ -170,7 +170,7 @@ export default function CartScreen() {
       onPress={() => navigation.navigate('DetallesProducto', { producto: item })}
     >
       <Image 
-        source={{ uri: `https://api-server-zen2.onrender.com/:5000/${item.imagenes[0]}` }} 
+        source={{ uri: `https://api-server-zen2.onrender.com/${item.imagenes[0]}` }} 
         style={styles.cartItemImage} 
       />
     </TouchableOpacity>
